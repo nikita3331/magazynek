@@ -12,6 +12,7 @@ global ex
 #ilosc wydanych osoba_imie
 #sprzet w remoncie
 #nowe dodanie
+#noweczka
 narzedzie="kurtka"
 ilosc=1
 producent="zara"
