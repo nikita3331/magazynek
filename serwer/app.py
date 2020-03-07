@@ -19,6 +19,7 @@ class Dodaj(Resource):
         narzedzie = json_data['narzedzie']
         ilosc = int(json_data['ilosc'])
         producent = json_data['producent']
+        kategoria = json_data['kategoria']
         odpowiedz=db.magazyn.find( { "narzedzie":narzedzie ,"producent":producent } )
         myresults = list(odpowiedz)
 
@@ -30,7 +31,11 @@ class Dodaj(Resource):
             lacznie=liczba_wydanych_baza+ilosc
             db.magazyn.update_one( { "narzedzie":narzedzie ,"producent":producent } ,{'$set':{"ilosc_wszystkich" :lacznie}})
         else:
-            db.magazyn.insert_one({"narzedzie": narzedzie, "ilosc_wszystkich" :ilosc, "producent": producent,"ilosc_wydanych":0,"data":datetime.now()})
+            odpowiedz=db.magazyn.find( { "kategoria":kategoria  } )
+            myresults = list(odpowiedz)
+            if len(myresults)>0:
+                db.magazyn.insert_one({"narzedzie": narzedzie, "ilosc_wszystkich" :ilosc,"kategoria":kategoria,"producent": producent,"ilosc_wydanych":0,"data":datetime.now()})
+            #tutaj dodac warunek by do katerogii dodac
         return {'dodalismy':'wszystko'},201
 class Usun(Resource):
     def get(self):

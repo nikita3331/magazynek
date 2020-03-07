@@ -7,52 +7,8 @@ import sys
 from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox
 import json
 global ex
-#tutaj bierzemy wartosci z YANDEX i umieszcamy w bazie
-#dodac kategorie
-#ilosc wydanych osoba_imie
-#sprzet w remoncie
-#nowe dodanie
-#noweczka
-narzedzie="kurtka"
-ilosc=1
-producent="zara"
-url='https://zapkaappka.herokuapp.com/'
-lokalny='http://127.0.0.1:5000/'
-def usun():
-    payload = {"narzedzie": narzedzie, "ilosc": ilosc,"producent":producent}
-    r = requests.post(url+'usun/',json=payload)
-def dodaj():
-    payload = {"narzedzie": narzedzie, "ilosc": ilosc,"producent":producent}
-    r = requests.post(url+'dodaj/',json=payload)
-def szukaj():
-    payload = {"narzedzie": narzedzie, "ilosc": ilosc,"producent":producent}
-    r = requests.post(url+'szukaj/',json=payload)
-    dane=r.json()
-    print('mamy tyle odpowiedzi : ',len(dane['odpowiedz']))
-    for i in range(0,len(dane['odpowiedz'])):
-        print('narzedzie ',i+1)
-        print('narzedzie ',dane['odpowiedz'][i]['narzedzie'])
-        print('producent ',dane['odpowiedz'][i]['producent'])
-def wydaj():
-    payload = {"narzedzie": narzedzie, "ilosc": 3,"producent":producent,"osoba_imie":"bolek","osoba_nazwisko":"malaszewski"}
-    r = requests.post(url+'wydaj/',json=payload)
-    print(r.text)
-def usun_wydanie():
-    payload = {"narzedzie": narzedzie, "ilosc": 2,"producent":producent,"osoba_imie":"bolek","osoba_nazwisko":"malaszewski"}
-    r = requests.post(url+'usun_wydanie/',json=payload)
-    print(r.text)
 
-wybor=5
-if wybor==4:
-    usun_wydanie()
-if wybor==3:
-    wydaj()
-if wybor==2:
-    szukaj()
-if wybor==1:
-    usun()
-if wybor==0:
-    dodaj()
+url='https://zapkaappka.herokuapp.com/'
 
 class myListWidget(QListWidget):
    def Clicked(self,item):
@@ -162,7 +118,7 @@ class Sprzet(QWidget):
         narzedzie = self.input_narzedzie.text()
         producent = self.input_producent.text()
         ilosc=int(self.input_ilosc.text())
-        payload = {"narzedzie": narzedzie, "producent": producent,"ilosc":ilosc}
+        payload = {"narzedzie": narzedzie, "producent": producent,"ilosc":ilosc,"kategoria":self.kategoria}
         r = requests.post(url+'dodaj/',json=payload)
         #QMessageBox.information("halko",str(r.text()))
         msg = QMessageBox()
