@@ -31,7 +31,7 @@ class Dodaj(Resource):
             lacznie=liczba_wydanych_baza+ilosc
             db.magazyn.update_one( { "narzedzie":narzedzie ,"producent":producent } ,{'$set':{"ilosc_wszystkich" :lacznie}})
         else:
-            odpowiedz=db.magazyn.find( { "kategoria":kategoria  } )
+            odpowiedz=db.magazyn.find( { "kategoria":kategoria  } )  #tutaj dodac by szukalo po array
             myresults = list(odpowiedz)
             if len(myresults)>0:
                 db.magazyn.insert_one({"narzedzie": narzedzie, "ilosc_wszystkich" :ilosc,"kategoria":kategoria,"producent": producent,"ilosc_wydanych":0,"data":datetime.now()})

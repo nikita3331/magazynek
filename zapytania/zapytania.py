@@ -142,20 +142,22 @@ class Sprzet(QWidget):
     def zaladuj_wszystkie(self,dane):
         self.listWidget_ogolem.clear()
         for i in range(0,len(dane['odpowiedz'])):
-            data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-            struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['ilosc_wszystkich'])
-            struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
-            itemek=struna1+' '+struna2
-            self.listWidget_ogolem.addItem(itemek)
+            if dane['odpowiedz'][i]['narzedzie']!='kategorie':
+                data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
+                struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['ilosc_wszystkich'])
+                struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
+                itemek=struna1+' '+struna2
+                self.listWidget_ogolem.addItem(itemek)
     def zaladuj_magazyn(self,dane):  #to bedzie lokalnie filtrowane
         self.listWidget_magazyn.clear()
         for i in range(0,len(dane['odpowiedz'])):
-            data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-            dostepne=int(dane['odpowiedz'][i]['ilosc_wszystkich'])-int(dane['odpowiedz'][i]['ilosc_wydanych'])
-            struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dostepne)
-            struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
-            itemek=struna1+' '+struna2
-            self.listWidget_magazyn.addItem(itemek)
+            if dane['odpowiedz'][i]['narzedzie']!='kategorie':
+                data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
+                dostepne=int(dane['odpowiedz'][i]['ilosc_wszystkich'])-int(dane['odpowiedz'][i]['ilosc_wydanych'])
+                struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dostepne)
+                struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
+                itemek=struna1+' '+struna2
+                self.listWidget_magazyn.addItem(itemek)
     def laduj(self):
         #otrzymamy rq i wrzucimy
         r = requests.post(url+'zobacz_wszystkie/')
