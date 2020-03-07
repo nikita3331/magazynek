@@ -1,0 +1,6 @@
+requests
+pymongo
+flask
+flask_restful
+uwsgi
+dnspython
