@@ -5,12 +5,13 @@ from datetime import datetime
 import requests
 import sys
 from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox
+from PyQt5 import QtCore
 import json
 global ex
 
 url='https://zapkaappka.herokuapp.com/'
 #url='http://127.0.0.1:5000/'
-
+#QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 class myListWidget(QListWidget):
    def Clicked(self,item):
       przedmiot=item.text()
@@ -139,7 +140,7 @@ class Sprzet(QWidget):
         qbtn.resize(100,40)
         qbtn.move(540-os_x, 80+h)
 
-        self.setGeometry(200, 200, 700, 600)
+        self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Dodawanie sprzetu')
 
     def dodaj_sprzet(self):
@@ -258,7 +259,7 @@ class Wydaj(QWidget):
         qbtn.resize(qbtn.sizeHint())
         qbtn.move(140, 200)
 
-        self.setGeometry(200, 200, 700, 600)
+        self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Dodawanie sprzetu')
 
     def wydaj_sprzet(self):
@@ -314,7 +315,7 @@ class Ludzie(QWidget):
 
 
 
-        self.setGeometry(200, 200, 700, 600)
+        self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Sprawdzenie ludzi')
 
     def szukaj_pracownika(self):
@@ -359,7 +360,7 @@ class Po_kategorii(QWidget):
 
 
 
-        self.setGeometry(200, 200, 700, 600)
+        self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Filtruj kategorie')
 
 
@@ -426,7 +427,7 @@ class Glowne(QWidget):
 
 
 
-        self.setGeometry(200, 200, 700, 600)
+        self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Glowne okno')
         self.show()
     def guzik_sprzet(self):
@@ -444,8 +445,8 @@ class Glowne(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-
+    app.setStyle('Fusion')
     ex = Glowne()
     ex.show()
-
+    print(app.primaryScreen().size())
     sys.exit(app.exec_())
