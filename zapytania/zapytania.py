@@ -9,6 +9,7 @@ import json
 global ex
 
 url='https://zapkaappka.herokuapp.com/'
+#url='http://127.0.0.1:5000/'
 
 class myListWidget(QListWidget):
    def Clicked(self,item):
@@ -32,9 +33,23 @@ class myListWidget(QListWidget):
          slowa=przedmiot.split()
          producent=slowa[1]
          narzedzie=slowa[0]
-         payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent}
+         kategoria=slowa[2]
+         payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"kategoria":kategoria}
          r = requests.post(url+'usun/',json=payload)
          ex.sprzet.laduj()
+   def Clicked_combo_kategoria(self,item):
+     przedmiot=item.text()
+     buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+     if buttonReply == QMessageBox.Yes:
+         #tu usuwamy
+         slowa=przedmiot.split()
+         producent=slowa[1]
+         narzedzie=slowa[0]
+         kategoria=ex.po_kategorii.kategoria_wyszukiwanie
+
+         payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"kategoria":kategoria}
+         r = requests.post(url+'usun/',json=payload)
+         ex.po_kategorii.laduj_itemki()
 
 
 
@@ -90,6 +105,19 @@ class Sprzet(QWidget):
         self.input_narzedzie.resize(100,40)
 
 
+        label_input_kategoria = QLabel(self)
+        label_input_kategoria.setText("Kategoria")
+        label_input_kategoria.move(430-os_x, 20+h)
+        self.input_kategoria = QLineEdit(self)
+        self.input_kategoria.move(430-os_x, 40+h)
+        self.input_kategoria.resize(100,40)
+        button_kategoria = QPushButton('Dodaj kategorie', self)
+        button_kategoria.clicked.connect(self.dodaj_kategorie)
+        button_kategoria.resize(100,40)
+        button_kategoria.move(550-os_x, 40+h)
+
+
+
         label_input_producent = QLabel(self)
         label_input_producent.setText("Producent")
         label_input_producent.move(200-os_x, 60+h)
@@ -126,6 +154,17 @@ class Sprzet(QWidget):
         msg.setText(r.text)
         retval = msg.exec_()
         self.laduj()
+    def dodaj_kategorie(self):
+        kategoria = self.input_kategoria.text()
+        payload = {"kategoria":kategoria}
+        r = requests.post(url+'kategorie/',json=payload)
+        #QMessageBox.information("halko",str(r.text()))
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText(r.text)
+        retval = msg.exec_()
+        self.dodaj_combo()
+        self.input_kategoria.setText("")
     def dodaj_combo(self):
         r = requests.get(url+'kategorie/')
         dane=r.json()
@@ -137,14 +176,13 @@ class Sprzet(QWidget):
 
     def selectionchange(self,i):
         self.kategoria=self.combo.currentText()
-        print ("wybrana kategoria to",self.kategoria)
 
     def zaladuj_wszystkie(self,dane):
         self.listWidget_ogolem.clear()
         for i in range(0,len(dane['odpowiedz'])):
             if dane['odpowiedz'][i]['narzedzie']!='kategorie':
                 data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-                struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['ilosc_wszystkich'])
+                struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['kategoria'])+' '+str(dane['odpowiedz'][i]['ilosc_wszystkich'])
                 struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
                 itemek=struna1+' '+struna2
                 self.listWidget_ogolem.addItem(itemek)
@@ -154,7 +192,7 @@ class Sprzet(QWidget):
             if dane['odpowiedz'][i]['narzedzie']!='kategorie':
                 data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
                 dostepne=int(dane['odpowiedz'][i]['ilosc_wszystkich'])-int(dane['odpowiedz'][i]['ilosc_wydanych'])
-                struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dostepne)
+                struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['kategoria'])+' '+str(dostepne)
                 struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
                 itemek=struna1+' '+struna2
                 self.listWidget_magazyn.addItem(itemek)
@@ -293,10 +331,62 @@ class Ludzie(QWidget):
             itemek=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent']+' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year))
             self.listWidget.addItem(itemek);
 
+class Po_kategorii(QWidget):
+    def __init__(self,parent):
+        super().__init__()
+        self.width = 600
+        self.height = 600
+        self.initUI()
+        self.polaczono=0
+        self.dummy=0
+        self.kategoria_wyszukiwanie=0
+    def initUI(self):
+        self.listWidget_kategorie= myListWidget(self)
+        self.listWidget_kategorie.resize(200,300)
+        self.listWidget_kategorie.move(300,50)
+        self.listWidget_kategorie.setWindowTitle('Lista przedmiotów')
+        self.listWidget_kategorie.itemClicked.connect(self.listWidget_kategorie.Clicked_combo_kategoria)
+        self.listWidget_kategorie.show()
+
+        self.combo_wyszukiwanie = QComboBox(self)
+        self.combo_wyszukiwanie.resize(100,40)
+        self.combo_wyszukiwanie.move(100, 80)
+        self.combo_wyszukiwanie.currentIndexChanged.connect(self.zmiana_combo)
+        self.combo_wyszukiwanie.show()
+        self.dodaj_combo()
+        self.laduj_itemki()
 
 
 
 
+        self.setGeometry(200, 200, 700, 600)
+        self.setWindowTitle('Filtruj kategorie')
+
+
+    def zmiana_combo(self,i):
+        self.kategoria_wyszukiwanie=self.combo_wyszukiwanie.currentText()
+        self.laduj_itemki()
+    def laduj_itemki(self):
+        self.listWidget_kategorie.clear();
+        kategoria=self.kategoria_wyszukiwanie
+        payload = {"kategoria": kategoria}
+        r = requests.post(url+'zobacz_po_kategorii/',json=payload)
+        dane=r.json()
+        for i in range(0,len(dane['odpowiedz'])):
+            data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
+            dostepne=int(dane['odpowiedz'][i]['ilosc_wszystkich'])-int(dane['odpowiedz'][i]['ilosc_wydanych'])
+            struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['ilosc_wszystkich'])
+            struna2=str(dostepne)+' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
+            itemek=struna1+' '+struna2
+            self.listWidget_kategorie.addItem(itemek)
+    def dodaj_combo(self):
+        r = requests.get(url+'kategorie/')
+        dane=r.json()
+        self.combo_wyszukiwanie.clear()
+        kats=dane['odpowiedz'][0]['kategorie']
+        for i in range(0,len(kats)):
+            kat=kats[i]
+            self.combo_wyszukiwanie.addItem(kat)
 
 
 class Glowne(QWidget):
@@ -310,6 +400,7 @@ class Glowne(QWidget):
         self.sprzet = Sprzet()
         self.ludzie = Ludzie()
         self.wydaj = Wydaj(self)
+        self.po_kategorii = Po_kategorii(self)
     def initUI(self):
 
 
@@ -328,6 +419,11 @@ class Glowne(QWidget):
         guzik_wydaj.resize(guzik_wydaj.sizeHint())
         guzik_wydaj.move(300, 70)
 
+        guzik_po_kategorii = QPushButton('Pokaż kategorie', self)
+        guzik_po_kategorii.clicked.connect(self.guzik_kliknij_po_kategorii)
+        guzik_po_kategorii.resize(guzik_po_kategorii.sizeHint())
+        guzik_po_kategorii.move(380, 70)
+
 
 
         self.setGeometry(200, 200, 700, 600)
@@ -336,6 +432,8 @@ class Glowne(QWidget):
     def guzik_sprzet(self):
         self.sprzet.laduj()
         self.sprzet.show()
+    def guzik_kliknij_po_kategorii(self):
+        self.po_kategorii.show()
 
     def guzik_patrz_ludzi(self):
         self.ludzie.show()

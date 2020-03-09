@@ -20,22 +20,20 @@ class Dodaj(Resource):
         ilosc = int(json_data['ilosc'])
         producent = json_data['producent']
         kategoria = json_data['kategoria']
-        odpowiedz=db.magazyn.find( { "narzedzie":narzedzie ,"producent":producent } )
+        odpowiedz=db.magazyn.find( { "narzedzie":narzedzie ,"producent":producent,"kategoria":kategoria } )
         myresults = list(odpowiedz)
+        ## szukamy czy jest juz taka kategoria
 
-        if len(myresults)>0:
+        if len(myresults)>0: #zwiekszamy ilosc jesli juz jest
             moje_wartosci_nowe=[]
             for i in myresults:
                  moje_wartosci_nowe.append({'narzedzie':i['narzedzie'],'producent':i['producent'],'ilosc_wszystkich':i['ilosc_wszystkich']})
             liczba_wydanych_baza=int(moje_wartosci_nowe[0]['ilosc_wszystkich'])
             lacznie=liczba_wydanych_baza+ilosc
             db.magazyn.update_one( { "narzedzie":narzedzie ,"producent":producent } ,{'$set':{"ilosc_wszystkich" :lacznie}})
-        else:
-            odpowiedz=db.magazyn.find( { "kategoria":kategoria  } )  #tutaj dodac by szukalo po array
-            myresults = list(odpowiedz)
-            if len(myresults)>0:
-                db.magazyn.insert_one({"narzedzie": narzedzie, "ilosc_wszystkich" :ilosc,"kategoria":kategoria,"producent": producent,"ilosc_wydanych":0,"data":datetime.now()})
-            #tutaj dodac warunek by do katerogii dodac
+        else: #dodajemy jesli nie ma w bazie
+            db.magazyn.insert_one({"narzedzie": narzedzie, "ilosc_wszystkich" :ilosc,"kategoria":kategoria,"producent": producent,"ilosc_wydanych":0,"data":datetime.now()})
+
         return {'dodalismy':'wszystko'},201
 class Usun(Resource):
     def get(self):
@@ -45,7 +43,8 @@ class Usun(Resource):
         narzedzie = json_data['narzedzie']
         ilosc = int(json_data['ilosc'])
         producent = json_data['producent']
-        odpowiedz=db.magazyn.find( { "narzedzie":narzedzie ,"producent":producent } )
+        kategoria=json_data['kategoria']
+        odpowiedz=db.magazyn.find( { "narzedzie":narzedzie ,"producent":producent,"kategoria":kategoria } )
         moje_wartosci=[]
         myresults = list(odpowiedz)
         for i in myresults:
@@ -187,24 +186,38 @@ class zobacz_wszystkie(Resource):
         myresults = list(odpowiedz) #patrzymy ile ich jest w naszej bazie
         moje_wartosci=[]
         for i in myresults:
-            moje_wartosci.append({'narzedzie':i['narzedzie'],'producent':i['producent'],'ilosc_wszystkich':i['ilosc_wszystkich'],'ilosc_wydanych':i['ilosc_wydanych'],'data':i['data'].isoformat()})
+            moje_wartosci.append({'narzedzie':i['narzedzie'],'producent':i['producent'],'kategoria':i['kategoria'],'ilosc_wszystkich':i['ilosc_wszystkich'],'ilosc_wydanych':i['ilosc_wydanych'],'data':i['data'].isoformat()})
+        return {'odpowiedz':moje_wartosci},201
+    def get(self):
+        return {'tu wysylamy':'post'},201
+class zobacz_po_kategorii(Resource):
+    def post(self):
+        json_data = request.get_json()
+        kategoria = json_data['kategoria']
+        odpowiedz=db.magazyn.find({'kategoria':kategoria})
+        myresults = list(odpowiedz) #patrzymy ile ich jest w naszej bazie
+        moje_wartosci=[]
+        for i in myresults:
+            moje_wartosci.append({'narzedzie':i['narzedzie'],'producent':i['producent'],'kategoria':i['kategoria'],'ilosc_wszystkich':i['ilosc_wszystkich'],'ilosc_wydanych':i['ilosc_wydanych'],'data':i['data'].isoformat()})
         return {'odpowiedz':moje_wartosci},201
     def get(self):
         return {'tu wysylamy':'post'},201
 class kategorie(Resource):
     def post(self): #dodajemy
         json_data = request.get_json()
-        narzedzie = json_data['narzedzie']
-        ilosc = json_data['ilosc']
-        producent = json_data['producent']
-        osoba_imie = json_data['osoba_imie']
-        osoba_nazwisko = json_data['osoba_nazwisko']
-        odpowiedz=db.magazyn.find()
-        myresults = list(odpowiedz) #patrzymy ile ich jest w naszej bazie
+        kategoria = json_data['kategoria']
+        kat_fetched=db.magazyn.find( { "narzedzie":"kategorie" ,"producent":"kategorie"} )
+        myresults = list(kat_fetched) #patrzymy ile ich jest w naszej bazie
         moje_wartosci=[]
         for i in myresults:
-            moje_wartosci.append({'narzedzie':i['narzedzie'],'producent':i['producent'],'ilosc_wszystkich':i['ilosc_wszystkich'],'ilosc_wydanych':i['ilosc_wydanych'],'data':i['data'].isoformat()})
-        return {'odpowiedz':moje_wartosci},201
+             moje_wartosci.append({'wszystko':i['kategorie']})
+        nasze_kategorie=list(moje_wartosci[0]['wszystko'])
+        if str(kategoria) not in nasze_kategorie:
+            nasze_kategorie.append(str(kategoria))
+            db.magazyn.update_one(  { "narzedzie":"kategorie" ,"producent":"kategorie"} ,{'$set':{"kategorie" :nasze_kategorie}})
+
+        catcat=str(kategoria)
+        return {'dodalismy':catcat},201
     def get(self): #odbieramy
         narzedzie = "kategorie"
         producent = "kategorie"
@@ -227,6 +240,7 @@ api.add_resource(Usun_wydanie,'/usun_wydanie/')
 api.add_resource(Wydane_osobie,'/wydane_osobie/')
 api.add_resource(zobacz_wszystkie,'/zobacz_wszystkie/')
 api.add_resource(kategorie,'/kategorie/')
+api.add_resource(zobacz_po_kategorii,'/zobacz_po_kategorii/')
 
 
 
