@@ -4,7 +4,7 @@ from pprint import pprint
 from datetime import datetime
 import requests
 import sys
-from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox,QListWidgetItem
+from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox,QListWidgetItem,QTableWidget,QTableWidgetItem
 from PyQt5 import QtCore
 import json
 global ex
@@ -381,30 +381,67 @@ class Po_kategorii(QWidget):
         self.polaczono=0
         self.dummy=0
         self.kategoria_wyszukiwanie=0
-        
     def initUI(self):
-        self.listWidget_kategorie= myListWidget(self)
+        self.listWidget_kategorie= myListWidget()
         self.listWidget_kategorie.resize(200,300)
         self.listWidget_kategorie.move(300,50)
         self.listWidget_kategorie.setWindowTitle('Lista przedmiotów')
         self.listWidget_kategorie.itemClicked.connect(self.listWidget_kategorie.Clicked_combo_kategoria)
-        self.listWidget_kategorie.show()
+        #self.listWidget_kategorie.show()
 
         self.combo_wyszukiwanie = QComboBox(self)
         self.combo_wyszukiwanie.resize(100,40)
         self.combo_wyszukiwanie.move(100, 80)
         self.combo_wyszukiwanie.currentIndexChanged.connect(self.zmiana_combo)
         self.combo_wyszukiwanie.show()
+
+        self.tableWidget = QTableWidget(self)
+        self.tableWidget.setRowCount(4)
+        self.tableWidget.setColumnCount(4)
+        self.tableWidget.move(250,50)
+        self.tableWidget.resize(430,300)
+        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent', 'wszystkie', 'dostepne'])
+        self.tableWidget.doubleClicked.connect(self.on_click)
+        self.tableWidget.show()
         self.dodaj_combo()
         self.laduj_itemki()
 
 
 
-
         self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Filtruj kategorie')
+    def dodaj_do_tabeli(self,dane):
+        #narzedzie,producent,dostepne,wszystkie
+        #self.tableWidget.clear()
+        self.tableWidget.setRowCount(len(dane['odpowiedz']))
+        for i in range(0,len(dane['odpowiedz'])):
+            narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
+            producent=str(dane['odpowiedz'][i]['producent'])
+            kategoria=str(dane['odpowiedz'][i]['kategoria'])
+            ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
+            ilosc_wydanych=dane['odpowiedz'][i]['ilosc_wydanych']
+            dostepne=int(ilosc_wszystkich)-int(ilosc_wydanych)
+            data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria,'ilosc_wszystkich':ilosc_wszystkich,'dostepne':dostepne})
 
+            item0 = QTableWidgetItem(str(narzedzie))
+            item0.setData(QtCore.Qt.UserRole, data)
+            self.tableWidget.setItem(i,0,item0)
 
+            item1 = QTableWidgetItem(str(producent))
+            item1.setData(QtCore.Qt.UserRole, data)
+            self.tableWidget.setItem(i,1,item1)
+
+            item2 = QTableWidgetItem(str(ilosc_wszystkich))
+            item2.setData(QtCore.Qt.UserRole, data)
+            self.tableWidget.setItem(i,2,item2)
+
+            item3 = QTableWidgetItem(str(dostepne))
+            item3.setData(QtCore.Qt.UserRole, data)
+            self.tableWidget.setItem(i,3,item3)
+
+    def on_click(self,item):
+        dane=item.data(QtCore.Qt.UserRole)
+        print(dane)
     def zmiana_combo(self,i):
         self.kategoria_wyszukiwanie=self.combo_wyszukiwanie.currentText()
         self.laduj_itemki()
@@ -421,20 +458,16 @@ class Po_kategorii(QWidget):
             kategoria=str(dane['odpowiedz'][i]['kategoria'])
             ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
             ilosc_wydanych=dane['odpowiedz'][i]['ilosc_wydanych']
-
-
             dostepne=int(ilosc_wszystkich)-int(ilosc_wydanych)
             struna1=narzedzie+' '+producent+' '+ilosc_wszystkich
             struna2=str(dostepne)
             struna3=' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
             itemek=struna1+' '+struna2
-
-
-
             item = QListWidgetItem(itemek)
             data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria})
             item.setData(QtCore.Qt.UserRole, data)
             self.listWidget_kategorie.addItem(item)
+        self.dodaj_do_tabeli(dane)
 
     def dodaj_combo(self):
         r = requests.get(url+'kategorie/')
