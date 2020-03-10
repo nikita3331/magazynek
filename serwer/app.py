@@ -161,6 +161,7 @@ class Usun_wydanie(Resource):
         liczba_wydanych_wszystkim=int(moje_wart[0]['ilosc_wydanych'])
         roznica=liczba_wydanych_wszystkim-liczba_wydanych
         db.magazyn.update_one( { "narzedzie":narzedzie ,"producent":producent } ,{'$set':{"ilosc_wydanych" :roznica}})
+
         db.wydanie.delete_one( { "narzedzie":narzedzie ,"producent":producent ,"osoba_imie":osoba_imie,"osoba_nazwisko":osoba_nazwisko} )
         return {'odpowiedz':'usunelismy wydanie'},201
     def get(self):
@@ -176,7 +177,7 @@ class Wydane_osobie(Resource):
         myresults = list(odpowiedz) #patrzymy ile ich jest w naszej bazie
         moje_wartosci=[]
         for i in myresults:
-            moje_wartosci.append({'narzedzie':i['narzedzie'],'producent':i['producent'],'data':i['data'].isoformat()})
+            moje_wartosci.append({'narzedzie':i['narzedzie'],'producent':i['producent'],'data':i['data'].isoformat(),'ilosc':i['ilosc']})
         return {'odpowiedz':moje_wartosci},201
     def get(self):
         return {'tu wysylamy':'post'},201
