@@ -4,49 +4,51 @@ from pprint import pprint
 from datetime import datetime
 import requests
 import sys
-from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox
+from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox,QListWidgetItem
 from PyQt5 import QtCore
 import json
 global ex
 
+#dodac tabelki
 url='https://zapkaappka.herokuapp.com/'
 #url='http://127.0.0.1:5000/'
 #QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 class myListWidget(QListWidget):
    def Clicked(self,item):
-      przedmiot=item.text()
       buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+      dane=item.data(QtCore.Qt.UserRole)
       if buttonReply == QMessageBox.Yes:
           #tu usuwamy
-          slowa=przedmiot.split()
-          producent=slowa[1]
-          narzedzie=slowa[0]
-          imie=ex.ludzie.input_imie.text()
-          nazwisko=ex.ludzie.input_nazwisko.text()
+
+          producent=dane['producent']
+          narzedzie=dane['narzedzie']
+          imie=dane['osoba_imie']
+          nazwisko=dane['osoba_nazwisko']
+          #imie=ex.ludzie.input_imie.text()
+          #nazwisko=ex.ludzie.input_nazwisko.text()
           payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"osoba_imie":imie,"osoba_nazwisko":nazwisko}
+
           r = requests.post(url+'usun_wydanie/',json=payload)
           ex.ludzie.szukaj_pracownika()
    def Clicked_magazyn(self,item):
-     przedmiot=item.text()
      buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+     dane=item.data(QtCore.Qt.UserRole)
      if buttonReply == QMessageBox.Yes:
          #tu usuwamy
-         slowa=przedmiot.split()
-         producent=slowa[1]
-         narzedzie=slowa[0]
-         kategoria=slowa[2]
+         producent=dane['producent']
+         narzedzie=dane['narzedzie']
+         kategoria=dane['kategoria']
          payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"kategoria":kategoria}
          r = requests.post(url+'usun/',json=payload)
          ex.sprzet.laduj()
    def Clicked_combo_kategoria(self,item):
-     przedmiot=item.text()
      buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+     dane=item.data(QtCore.Qt.UserRole)
      if buttonReply == QMessageBox.Yes:
          #tu usuwamy
-         slowa=przedmiot.split()
-         producent=slowa[1]
-         narzedzie=slowa[0]
-         kategoria=ex.po_kategorii.kategoria_wyszukiwanie
+         producent=dane['producent']
+         narzedzie=dane['narzedzie']
+         kategoria=dane['kategoria']
 
          payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"kategoria":kategoria}
          r = requests.post(url+'usun/',json=payload)
@@ -157,7 +159,9 @@ class Sprzet(QWidget):
         self.laduj()
     def dodaj_kategorie(self):
         kategoria = self.input_kategoria.text()
-        payload = {"kategoria":kategoria}
+        kat=kategoria.replace(" ","")
+        katsa=kat.lower()
+        payload = {"kategoria":katsa}
         r = requests.post(url+'kategorie/',json=payload)
         #QMessageBox.information("halko",str(r.text()))
         msg = QMessageBox()
@@ -183,20 +187,40 @@ class Sprzet(QWidget):
         for i in range(0,len(dane['odpowiedz'])):
             if dane['odpowiedz'][i]['narzedzie']!='kategorie':
                 data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-                struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['kategoria'])+' '+str(dane['odpowiedz'][i]['ilosc_wszystkich'])
+                narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
+                producent=str(dane['odpowiedz'][i]['producent'])
+                kategoria=str(dane['odpowiedz'][i]['kategoria'])
+                ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
+
+                struna1=narzedzie+' '+producent+' '+kategoria+' '+ilosc_wszystkich
                 struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
-                itemek=struna1+' '+struna2
-                self.listWidget_ogolem.addItem(itemek)
+                itemek=struna1
+
+                item = QListWidgetItem(itemek)
+                data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria})
+                item.setData(QtCore.Qt.UserRole, data)
+                self.listWidget_ogolem.addItem(item)
     def zaladuj_magazyn(self,dane):  #to bedzie lokalnie filtrowane
         self.listWidget_magazyn.clear()
         for i in range(0,len(dane['odpowiedz'])):
             if dane['odpowiedz'][i]['narzedzie']!='kategorie':
                 data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-                dostepne=int(dane['odpowiedz'][i]['ilosc_wszystkich'])-int(dane['odpowiedz'][i]['ilosc_wydanych'])
-                struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['kategoria'])+' '+str(dostepne)
+                narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
+                producent=str(dane['odpowiedz'][i]['producent'])
+                kategoria=str(dane['odpowiedz'][i]['kategoria'])
+                ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
+                ilosc_wydanych=dane['odpowiedz'][i]['ilosc_wydanych']
+
+
+                dostepne=int(ilosc_wszystkich)-int(ilosc_wydanych)
+                struna1=narzedzie+' '+producent+' '+kategoria+' '+str(dostepne)
                 struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
-                itemek=struna1+' '+struna2
-                self.listWidget_magazyn.addItem(itemek)
+                itemek=struna1
+
+                item = QListWidgetItem(itemek)
+                data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria,'ilosc_wydanych':ilosc_wydanych,'ilosc_wszystkich':ilosc_wszystkich})
+                item.setData(QtCore.Qt.UserRole, data)
+                self.listWidget_magazyn.addItem(item)
     def laduj(self):
         #otrzymamy rq i wrzucimy
         r = requests.post(url+'zobacz_wszystkie/')
@@ -267,8 +291,12 @@ class Wydaj(QWidget):
         producent = self.input_producent.text()
         ilosc=int(self.input_ilosc.text())
         imie=self.input_imie.text()
+        imj=imie.replace(" ","")
+        imjj=imj.lower()
         nazwisko=self.input_nazwisko.text()
-        payload = {"narzedzie": narzedzie, "producent": producent,"ilosc":ilosc, "osoba_imie": imie,"osoba_nazwisko":nazwisko}
+        naz=nazwisko.replace(" ","")
+        nazz=naz.lower()
+        payload = {"narzedzie": narzedzie, "producent": producent,"ilosc":ilosc, "osoba_imie": imjj,"osoba_nazwisko":nazz}
         r = requests.post(url+'wydaj/',json=payload)
         #QMessageBox.information("halko",str(r.text()))
         msg = QMessageBox()
@@ -322,15 +350,27 @@ class Ludzie(QWidget):
         #wyczyscic
         self.listWidget.clear();
         osoba_imie = self.input_imie.text()
+        ossa=osoba_imie.replace(" ","")
+        ossaba=ossa.lower()
         osoba_nazwisko=self.input_nazwisko.text()
-        payload = {"osoba_imie": osoba_imie, "osoba_nazwisko": osoba_nazwisko}
+        nazi=osoba_nazwisko.replace(" ","")
+        naziz=nazi.lower()
+        payload = {"osoba_imie": ossaba, "osoba_nazwisko": naziz}
         r = requests.post(url+'wydane_osobie/',json=payload)
         dane=r.json()
         for i in range(0,len(dane['odpowiedz'])):
             data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
+            narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
+            producent=str(dane['odpowiedz'][i]['producent'])
+            ilosc=str(dane['odpowiedz'][i]['ilosc'])
+            itemek=narzedzie+' '+producent+' '+ilosc+' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
+            item = QListWidgetItem(itemek)
+            data = ({'narzedzie':narzedzie,'producent':producent,'osoba_imie':ossaba,'osoba_nazwisko':naziz,'ilosc':ilosc})
+            item.setData(QtCore.Qt.UserRole, data)
+            self.listWidget.addItem(item)
 
-            itemek=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent']+' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year))
-            self.listWidget.addItem(itemek);
+
+
 
 class Po_kategorii(QWidget):
     def __init__(self,parent):
@@ -375,11 +415,26 @@ class Po_kategorii(QWidget):
         dane=r.json()
         for i in range(0,len(dane['odpowiedz'])):
             data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-            dostepne=int(dane['odpowiedz'][i]['ilosc_wszystkich'])-int(dane['odpowiedz'][i]['ilosc_wydanych'])
-            struna1=str(dane['odpowiedz'][i]['narzedzie'])+' '+str(dane['odpowiedz'][i]['producent'])+' '+str(dane['odpowiedz'][i]['ilosc_wszystkich'])
-            struna2=str(dostepne)+' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
+            narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
+            producent=str(dane['odpowiedz'][i]['producent'])
+            kategoria=str(dane['odpowiedz'][i]['kategoria'])
+            ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
+            ilosc_wydanych=dane['odpowiedz'][i]['ilosc_wydanych']
+
+
+            dostepne=int(ilosc_wszystkich)-int(ilosc_wydanych)
+            struna1=narzedzie+' '+producent+' '+ilosc_wszystkich
+            struna2=str(dostepne)
+            struna3=' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
             itemek=struna1+' '+struna2
-            self.listWidget_kategorie.addItem(itemek)
+
+
+
+            item = QListWidgetItem(itemek)
+            data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria})
+            item.setData(QtCore.Qt.UserRole, data)
+            self.listWidget_kategorie.addItem(item)
+
     def dodaj_combo(self):
         r = requests.get(url+'kategorie/')
         dane=r.json()
@@ -435,7 +490,7 @@ class Glowne(QWidget):
         self.sprzet.show()
     def guzik_kliknij_po_kategorii(self):
         self.po_kategorii.show()
-
+        self.po_kategorii.dodaj_combo()
     def guzik_patrz_ludzi(self):
         self.ludzie.show()
     def guzik_kliknij_wydaj(self):
