@@ -341,6 +341,7 @@ class Po_kategorii(QWidget):
         self.polaczono=0
         self.dummy=0
         self.kategoria_wyszukiwanie=0
+        
     def initUI(self):
         self.listWidget_kategorie= myListWidget(self)
         self.listWidget_kategorie.resize(200,300)
