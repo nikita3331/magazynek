@@ -13,48 +13,17 @@ global ex
 url='https://zapkaappka.herokuapp.com/'
 #url='http://127.0.0.1:5000/'
 #QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-class myListWidget(QListWidget):
-   def Clicked(self,item):
-      buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
-      dane=item.data(QtCore.Qt.UserRole)
-      if buttonReply == QMessageBox.Yes:
-          #tu usuwamy
 
-          producent=dane['producent']
-          narzedzie=dane['narzedzie']
-          imie=dane['osoba_imie']
-          nazwisko=dane['osoba_nazwisko']
-          #imie=ex.ludzie.input_imie.text()
-          #nazwisko=ex.ludzie.input_nazwisko.text()
-          payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"osoba_imie":imie,"osoba_nazwisko":nazwisko}
-
-          r = requests.post(url+'usun_wydanie/',json=payload)
-          ex.ludzie.szukaj_pracownika()
-   def Clicked_magazyn(self,item):
-     buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
-     dane=item.data(QtCore.Qt.UserRole)
-     if buttonReply == QMessageBox.Yes:
-         #tu usuwamy
-         producent=dane['producent']
-         narzedzie=dane['narzedzie']
-         kategoria=dane['kategoria']
-         payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"kategoria":kategoria}
-         r = requests.post(url+'usun/',json=payload)
-         ex.sprzet.laduj()
-   def Clicked_combo_kategoria(self,item):
-     buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
-     dane=item.data(QtCore.Qt.UserRole)
-     if buttonReply == QMessageBox.Yes:
-         #tu usuwamy
-         producent=dane['producent']
-         narzedzie=dane['narzedzie']
-         kategoria=dane['kategoria']
-
-         payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"kategoria":kategoria}
-         r = requests.post(url+'usun/',json=payload)
-         ex.po_kategorii.laduj_itemki()
-
-
+class tabelka(QTableWidget):
+    def ustaw(self):
+        self.tableWidget = QTableWidget(self)
+        self.tableWidget.setRowCount(1)
+        self.tableWidget.setColumnCount(5)
+        self.tableWidget.move(250,50)
+        self.tableWidget.resize(430,300)
+        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent','kategoria', 'wszystkie', 'dostepne'])
+        self.tableWidget.itemClicked.connect(self.klikniety_magazyn)
+        self.tableWidget.show()
 
 class Sprzet(QWidget):
     def __init__(self):
@@ -65,33 +34,32 @@ class Sprzet(QWidget):
         self.polaczono=0
         self.dummy=0
         self.kategoria=0
+
     def initUI(self):
         #na magazynie
         #ogolem
         h=400
         os_x=30
-        label_lista_magazyn = QLabel(self)
-        label_lista_magazyn.setText("Dostępne w magazynie")
-        label_lista_magazyn.move(50, 20)
-        self.listWidget_magazyn= myListWidget(self)
-        self.listWidget_magazyn.resize(250,300)
-        self.listWidget_magazyn.move(50,50)
-        self.listWidget_magazyn.itemClicked.connect(self.listWidget_magazyn.Clicked_magazyn)
-        self.listWidget_magazyn.show()
-
-
-
 
         label_lista_ogolem = QLabel(self)
-        label_lista_ogolem.setText("Dostępne ogółem")
+        label_lista_ogolem.setText("Stan magazynu")
         label_lista_ogolem.move(320, 20)
-        self.listWidget_ogolem= myListWidget(self)
-        self.listWidget_ogolem.resize(250,300)
-        self.listWidget_ogolem.move(320,50)
-        self.listWidget_ogolem.itemClicked.connect(self.listWidget_ogolem.Clicked_magazyn)
-        self.listWidget_ogolem.show()
+        self.tableWidget = QTableWidget(self)
 
+        self.tableWidget.setRowCount(1)
+        self.tableWidget.setColumnCount(5)
+        self.tableWidget.move(250,50)
+        self.tableWidget.resize(430,300)
+        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent','kategoria', 'wszystkie', 'dostepne'])
+
+        self.tableWidget.itemClicked.connect(self.klikniety_magazyn)
+
+        self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
         self.laduj()
+        self.tableWidget.show()
+
+
+
 
         self.combo = QComboBox(self)
         self.combo.resize(100,40)
@@ -117,7 +85,7 @@ class Sprzet(QWidget):
         button_kategoria = QPushButton('Dodaj kategorie', self)
         button_kategoria.clicked.connect(self.dodaj_kategorie)
         button_kategoria.resize(100,40)
-        button_kategoria.move(550-os_x, 40+h)
+        button_kategoria.move(540-os_x, 40+h)
 
 
 
@@ -144,7 +112,17 @@ class Sprzet(QWidget):
 
         self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Dodawanie sprzetu')
-
+    def klikniety_magazyn(self,item):
+        buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+        dane=item.data(QtCore.Qt.UserRole)
+        if buttonReply == QMessageBox.Yes:
+    #tu usuwamy
+            producent=dane['producent']
+            narzedzie=dane['narzedzie']
+            kategoria=dane['kategoria']
+            payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"kategoria":kategoria}
+            r = requests.post(url+'usun/',json=payload)
+            self.laduj()
     def dodaj_sprzet(self):
         narzedzie = self.input_narzedzie.text()
         producent = self.input_producent.text()
@@ -182,51 +160,57 @@ class Sprzet(QWidget):
     def selectionchange(self,i):
         self.kategoria=self.combo.currentText()
 
-    def zaladuj_wszystkie(self,dane):
-        self.listWidget_ogolem.clear()
-        for i in range(0,len(dane['odpowiedz'])):
-            if dane['odpowiedz'][i]['narzedzie']!='kategorie':
-                data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-                narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
-                producent=str(dane['odpowiedz'][i]['producent'])
-                kategoria=str(dane['odpowiedz'][i]['kategoria'])
-                ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
-
-                struna1=narzedzie+' '+producent+' '+kategoria+' '+ilosc_wszystkich
-                struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
-                itemek=struna1
-
-                item = QListWidgetItem(itemek)
-                data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria})
-                item.setData(QtCore.Qt.UserRole, data)
-                self.listWidget_ogolem.addItem(item)
     def zaladuj_magazyn(self,dane):  #to bedzie lokalnie filtrowane
-        self.listWidget_magazyn.clear()
+        self.tableWidget.clear()
+        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent','kategoria', 'wszystkie', 'dostepne'])
+        self.tableWidget.setRowCount(len(dane['odpowiedz']))
+
+
+        lista_moja=list(dane['odpowiedz'])
+        #posortowana=sorted(lista_moja, key = lambda i: i['narzedzie'])
         for i in range(0,len(dane['odpowiedz'])):
-            if dane['odpowiedz'][i]['narzedzie']!='kategorie':
-                data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-                narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
-                producent=str(dane['odpowiedz'][i]['producent'])
-                kategoria=str(dane['odpowiedz'][i]['kategoria'])
-                ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
-                ilosc_wydanych=dane['odpowiedz'][i]['ilosc_wydanych']
 
+            if lista_moja[i]['narzedzie']!='kategorie' :
 
+                narzedzie=str(lista_moja[i]['narzedzie'])
+                producent=str(lista_moja[i]['producent'])
+                kategoria=str(lista_moja[i]['kategoria'])
+                ilosc_wszystkich=str(lista_moja[i]['ilosc_wszystkich'])
+                ilosc_wydanych=lista_moja[i]['ilosc_wydanych']
                 dostepne=int(ilosc_wszystkich)-int(ilosc_wydanych)
-                struna1=narzedzie+' '+producent+' '+kategoria+' '+str(dostepne)
-                struna2=str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
-                itemek=struna1
-
-                item = QListWidgetItem(itemek)
                 data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria,'ilosc_wydanych':ilosc_wydanych,'ilosc_wszystkich':ilosc_wszystkich})
-                item.setData(QtCore.Qt.UserRole, data)
-                self.listWidget_magazyn.addItem(item)
+                self.tableWidget.setSortingEnabled(False)
+
+                item0 = QTableWidgetItem(str(narzedzie))
+                item0.setData(QtCore.Qt.UserRole, data)
+                self.tableWidget.setItem(i,0,item0)
+
+                item1 = QTableWidgetItem(str(producent))
+                item1.setData(QtCore.Qt.UserRole, data)
+                self.tableWidget.setItem(i,1,item1)
+
+                item2 = QTableWidgetItem(str(kategoria))
+                item2.setData(QtCore.Qt.UserRole, data)
+                self.tableWidget.setItem(i,2,item2)
+
+                item3 = QTableWidgetItem(str(ilosc_wszystkich))
+                item3.setData(QtCore.Qt.UserRole, data)
+                self.tableWidget.setItem(i,3,item3)
+
+                item4 = QTableWidgetItem(str(dostepne))
+                item4.setData(QtCore.Qt.UserRole, data)
+                self.tableWidget.setItem(i,4,item4)
+                self.tableWidget.setSortingEnabled(True)
+
+        #self.tableWidget.removeRow(0)
+
+
+
     def laduj(self):
         #otrzymamy rq i wrzucimy
         r = requests.post(url+'zobacz_wszystkie/')
         dane=r.json()
         self.zaladuj_magazyn(dane)
-        self.zaladuj_wszystkie(dane)
 
 class Wydaj(QWidget):
     def __init__(self,parent):
@@ -313,12 +297,16 @@ class Ludzie(QWidget):
         self.dummy=0
 
     def initUI(self):
-        self.listWidget= myListWidget(self)
-        self.listWidget.resize(200,300)
-        self.listWidget.move(300,50)
-        self.listWidget.setWindowTitle('Lista przedmiotów')
-        self.listWidget.itemClicked.connect(self.listWidget.Clicked)
-        self.listWidget.show()
+
+        self.tableWidget = QTableWidget(self)
+        self.tableWidget.setRowCount(1)
+        self.tableWidget.setColumnCount(4)
+        self.tableWidget.move(300,50)
+        self.tableWidget.resize(350,300)
+        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent', 'ilosc', 'data'])
+        self.tableWidget.itemClicked.connect(self.kliknieta_tabela)
+        self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
+        self.tableWidget.show()
 
         label_input_imie = QLabel(self)
         label_input_imie.setText("Imie")
@@ -335,20 +323,25 @@ class Ludzie(QWidget):
         self.input_nazwisko.move(180, 80)
         self.input_nazwisko.resize(100,40)
 
-
         qbtn = QPushButton('Szukaj ', self)
         qbtn.clicked.connect(self.szukaj_pracownika)
         qbtn.resize(qbtn.sizeHint())
         qbtn.move(140, 200)
 
-
-
         self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Sprawdzenie ludzi')
-
+    def kliknieta_tabela(self,item):
+        buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+        dane=item.data(QtCore.Qt.UserRole)
+        if buttonReply == QMessageBox.Yes:
+            producent=dane['producent']
+            narzedzie=dane['narzedzie']
+            imie=dane['osoba_imie']
+            nazwisko=dane['osoba_nazwisko']
+            payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"osoba_imie":imie,"osoba_nazwisko":nazwisko}
+            r = requests.post(url+'usun_wydanie/',json=payload)
+            self.szukaj_pracownika()
     def szukaj_pracownika(self):
-        #wyczyscic
-        self.listWidget.clear();
         osoba_imie = self.input_imie.text()
         ossa=osoba_imie.replace(" ","")
         ossaba=ossa.lower()
@@ -358,19 +351,34 @@ class Ludzie(QWidget):
         payload = {"osoba_imie": ossaba, "osoba_nazwisko": naziz}
         r = requests.post(url+'wydane_osobie/',json=payload)
         dane=r.json()
+        self.tableWidget.clear()
+        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent', 'ilosc', 'data'])
+        self.tableWidget.setRowCount(len(dane['odpowiedz']))
+        lista_moja=list(dane['odpowiedz'])
+        #posortowana=sorted(lista_moja, key = lambda i: i['narzedzie'])
         for i in range(0,len(dane['odpowiedz'])):
-            data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-            narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
-            producent=str(dane['odpowiedz'][i]['producent'])
-            ilosc=str(dane['odpowiedz'][i]['ilosc'])
-            itemek=narzedzie+' '+producent+' '+ilosc+' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
-            item = QListWidgetItem(itemek)
-            data = ({'narzedzie':narzedzie,'producent':producent,'osoba_imie':ossaba,'osoba_nazwisko':naziz,'ilosc':ilosc})
-            item.setData(QtCore.Qt.UserRole, data)
-            self.listWidget.addItem(item)
+            data_nowa=datetime.fromisoformat(lista_moja[i]['data'])
+            narzedzie=str(lista_moja[i]['narzedzie'])
+            producent=str(lista_moja[i]['producent'])
+            ilosc=str(lista_moja[i]['ilosc'])
+            data = ({'narzedzie':narzedzie,'producent':producent,'osoba_imie':ossaba,'osoba_nazwisko':osoba_nazwisko,'ilosc':ilosc})
+            self.tableWidget.setSortingEnabled(False)
+            item0 = QTableWidgetItem(str(narzedzie))
+            item0.setData(QtCore.Qt.UserRole, data)
+            self.tableWidget.setItem(i,0,item0)
 
+            item1 = QTableWidgetItem(str(producent))
+            item1.setData(QtCore.Qt.UserRole, data)
+            self.tableWidget.setItem(i,1,item1)
 
+            item2 = QTableWidgetItem(str(ilosc))
+            item2.setData(QtCore.Qt.UserRole, data)
+            self.tableWidget.setItem(i,2,item2)
 
+            item3 = QTableWidgetItem(str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year))
+            item3.setData(QtCore.Qt.UserRole, data)
+            self.tableWidget.setItem(i,3,item3)
+            self.tableWidget.setSortingEnabled(True)
 
 class Po_kategorii(QWidget):
     def __init__(self,parent):
@@ -381,13 +389,9 @@ class Po_kategorii(QWidget):
         self.polaczono=0
         self.dummy=0
         self.kategoria_wyszukiwanie=0
+
     def initUI(self):
-        self.listWidget_kategorie= myListWidget()
-        self.listWidget_kategorie.resize(200,300)
-        self.listWidget_kategorie.move(300,50)
-        self.listWidget_kategorie.setWindowTitle('Lista przedmiotów')
-        self.listWidget_kategorie.itemClicked.connect(self.listWidget_kategorie.Clicked_combo_kategoria)
-        #self.listWidget_kategorie.show()
+
 
         self.combo_wyszukiwanie = QComboBox(self)
         self.combo_wyszukiwanie.resize(100,40)
@@ -401,7 +405,8 @@ class Po_kategorii(QWidget):
         self.tableWidget.move(250,50)
         self.tableWidget.resize(430,300)
         self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent', 'wszystkie', 'dostepne'])
-        self.tableWidget.doubleClicked.connect(self.on_click)
+        self.tableWidget.itemClicked.connect(self.clicked_table)
+        self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
         self.tableWidget.show()
         self.dodaj_combo()
         self.laduj_itemki()
@@ -410,19 +415,35 @@ class Po_kategorii(QWidget):
 
         self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Filtruj kategorie')
+    def clicked_table(self,item):
+        buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+        dane=item.data(QtCore.Qt.UserRole)
+        if buttonReply == QMessageBox.Yes:
+         #tu usuwamy
+            producent=dane['producent']
+            narzedzie=dane['narzedzie']
+            kategoria=dane['kategoria']
+
+            payload = {"narzedzie": narzedzie, "ilosc": 1,"producent":producent,"kategoria":kategoria}
+            r = requests.post(url+'usun/',json=payload)
+            self.laduj_itemki()
     def dodaj_do_tabeli(self,dane):
-        #narzedzie,producent,dostepne,wszystkie
-        #self.tableWidget.clear()
+
+        #dodac sortowanie
+        self.tableWidget.clear()
+        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent', 'wszystkie', 'dostepne'])
         self.tableWidget.setRowCount(len(dane['odpowiedz']))
+        lista_moja=list(dane['odpowiedz'])
+        posortowana=sorted(lista_moja, key = lambda i: i['narzedzie'])
         for i in range(0,len(dane['odpowiedz'])):
-            narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
-            producent=str(dane['odpowiedz'][i]['producent'])
-            kategoria=str(dane['odpowiedz'][i]['kategoria'])
-            ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
-            ilosc_wydanych=dane['odpowiedz'][i]['ilosc_wydanych']
+            narzedzie=str(lista_moja[i]['narzedzie'])
+            producent=str(lista_moja[i]['producent'])
+            kategoria=str(lista_moja[i]['kategoria'])
+            ilosc_wszystkich=str(lista_moja[i]['ilosc_wszystkich'])
+            ilosc_wydanych=lista_moja[i]['ilosc_wydanych']
             dostepne=int(ilosc_wszystkich)-int(ilosc_wydanych)
             data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria,'ilosc_wszystkich':ilosc_wszystkich,'dostepne':dostepne})
-
+            self.tableWidget.setSortingEnabled(False)
             item0 = QTableWidgetItem(str(narzedzie))
             item0.setData(QtCore.Qt.UserRole, data)
             self.tableWidget.setItem(i,0,item0)
@@ -438,35 +459,15 @@ class Po_kategorii(QWidget):
             item3 = QTableWidgetItem(str(dostepne))
             item3.setData(QtCore.Qt.UserRole, data)
             self.tableWidget.setItem(i,3,item3)
-
-    def on_click(self,item):
-        dane=item.data(QtCore.Qt.UserRole)
-        print(dane)
+            self.tableWidget.setSortingEnabled(True)
     def zmiana_combo(self,i):
         self.kategoria_wyszukiwanie=self.combo_wyszukiwanie.currentText()
         self.laduj_itemki()
     def laduj_itemki(self):
-        self.listWidget_kategorie.clear();
         kategoria=self.kategoria_wyszukiwanie
         payload = {"kategoria": kategoria}
         r = requests.post(url+'zobacz_po_kategorii/',json=payload)
         dane=r.json()
-        for i in range(0,len(dane['odpowiedz'])):
-            data_nowa=datetime.fromisoformat(dane['odpowiedz'][i]['data'])
-            narzedzie=str(dane['odpowiedz'][i]['narzedzie'])
-            producent=str(dane['odpowiedz'][i]['producent'])
-            kategoria=str(dane['odpowiedz'][i]['kategoria'])
-            ilosc_wszystkich=str(dane['odpowiedz'][i]['ilosc_wszystkich'])
-            ilosc_wydanych=dane['odpowiedz'][i]['ilosc_wydanych']
-            dostepne=int(ilosc_wszystkich)-int(ilosc_wydanych)
-            struna1=narzedzie+' '+producent+' '+ilosc_wszystkich
-            struna2=str(dostepne)
-            struna3=' '+str(data_nowa.day)+'-'+str(data_nowa.month)+'-'+str(data_nowa.year)
-            itemek=struna1+' '+struna2
-            item = QListWidgetItem(itemek)
-            data = ({'narzedzie':narzedzie,'producent':producent,'kategoria':kategoria})
-            item.setData(QtCore.Qt.UserRole, data)
-            self.listWidget_kategorie.addItem(item)
         self.dodaj_do_tabeli(dane)
 
     def dodaj_combo(self):
@@ -475,7 +476,7 @@ class Po_kategorii(QWidget):
         self.combo_wyszukiwanie.clear()
         kats=dane['odpowiedz'][0]['kategorie']
         for i in range(0,len(kats)):
-            kat=kats[i]
+            kat=kats[i] 
             self.combo_wyszukiwanie.addItem(kat)
 
 
@@ -487,10 +488,10 @@ class Glowne(QWidget):
         self.initUI()
         self.polaczono=0
         self.dummy=0
-        self.sprzet = Sprzet()
-        self.ludzie = Ludzie()
-        self.wydaj = Wydaj(self)
-        self.po_kategorii = Po_kategorii(self)
+
+
+
+
     def initUI(self):
 
 
@@ -520,14 +521,18 @@ class Glowne(QWidget):
         self.setWindowTitle('Glowne okno')
         self.show()
     def guzik_sprzet(self):
+        self.sprzet = Sprzet()
         self.sprzet.laduj()
         self.sprzet.show()
     def guzik_kliknij_po_kategorii(self):
+        self.po_kategorii = Po_kategorii(self)
         self.po_kategorii.show()
         self.po_kategorii.dodaj_combo()
     def guzik_patrz_ludzi(self):
+        self.ludzie = Ludzie()
         self.ludzie.show()
     def guzik_kliknij_wydaj(self):
+        self.wydaj = Wydaj(self)
         self.wydaj.show()
 
 
