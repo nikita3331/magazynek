@@ -4,7 +4,7 @@ from pprint import pprint
 from datetime import datetime
 import requests
 import sys
-from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox,QListWidgetItem,QTableWidget,QTableWidgetItem
+from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox,QListWidgetItem,QTableWidget,QTableWidgetItem,QGridLayout,QHeaderView
 from PyQt5 import QtCore
 import json
 global ex
@@ -28,8 +28,8 @@ class tabelka(QTableWidget):
 class Sprzet(QWidget):
     def __init__(self):
         super().__init__()
-        self.width = 600
-        self.height = 600
+        self.width = width_full
+        self.height = height_full
         self.initUI()
         self.polaczono=0
         self.dummy=0
@@ -43,17 +43,16 @@ class Sprzet(QWidget):
 
         label_lista_ogolem = QLabel(self)
         label_lista_ogolem.setText("Stan magazynu")
-        label_lista_ogolem.move(320, 20)
+        label_lista_ogolem.move((32/70)*self.width, (2/60)*self.height)
         self.tableWidget = QTableWidget(self)
 
         self.tableWidget.setRowCount(1)
         self.tableWidget.setColumnCount(5)
-        self.tableWidget.move(250,50)
-        self.tableWidget.resize(430,300)
+        self.tableWidget.move((25/70)*self.width, (5/60)*self.height)
+        self.tableWidget.resize((43/70)*self.width, (30/60)*self.height)
         self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent','kategoria', 'wszystkie', 'dostepne'])
-
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.itemClicked.connect(self.klikniety_magazyn)
-
         self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
         self.laduj()
         self.tableWidget.show()
@@ -62,55 +61,56 @@ class Sprzet(QWidget):
 
 
         self.combo = QComboBox(self)
-        self.combo.resize(100,40)
-        self.combo.move(430-os_x, 80+h)
+        self.combo.move((40/70)*self.width, (48/60)*self.height)
+        self.combo.resize((10/70)*self.width, (4/60)*self.height)
         self.combo.currentIndexChanged.connect(self.selectionchange)
         self.combo.show()
         self.dodaj_combo()
 
         label_input_narzedzie = QLabel(self)
         label_input_narzedzie.setText("Narzedzie")
-        label_input_narzedzie.move(70-os_x,60+h)
+        label_input_narzedzie.move((4/70)*self.width, (46/60)*self.height)
         self.input_narzedzie = QLineEdit(self)
-        self.input_narzedzie.move(50-os_x, 80+h)
-        self.input_narzedzie.resize(100,40)
-
+        self.input_narzedzie.move((2/70)*self.width, (48/60)*self.height)
+        self.input_narzedzie.resize((10/70)*self.width, (4/60)*self.height)
 
         label_input_kategoria = QLabel(self)
         label_input_kategoria.setText("Kategoria")
-        label_input_kategoria.move(430-os_x, 20+h)
+        label_input_kategoria.move((40/70)*self.width, (42/60)*self.height)
+
+
         self.input_kategoria = QLineEdit(self)
-        self.input_kategoria.move(430-os_x, 40+h)
-        self.input_kategoria.resize(100,40)
+        self.input_kategoria.move((40/70)*self.width, (44/60)*self.height)
+        self.input_kategoria.resize((10/70)*self.width, (4/60)*self.height)
         button_kategoria = QPushButton('Dodaj kategorie', self)
         button_kategoria.clicked.connect(self.dodaj_kategorie)
-        button_kategoria.resize(100,40)
-        button_kategoria.move(540-os_x, 40+h)
+        button_kategoria.move((51/70)*self.width, (44/60)*self.height)
+        button_kategoria.resize((10/70)*self.width, (4/60)*self.height)
 
 
 
         label_input_producent = QLabel(self)
         label_input_producent.setText("Producent")
-        label_input_producent.move(200-os_x, 60+h)
+        label_input_producent.move((17/70)*self.width, (46/60)*self.height)
         self.input_producent = QLineEdit(self)
-        self.input_producent.move(180-os_x, 80+h)
-        self.input_producent.resize(100,40)
+        self.input_producent.move((15/70)*self.width, (48/60)*self.height)
+        self.input_producent.resize((10/70)*self.width, (4/60)*self.height)
 
 
         label_input_ilosc = QLabel(self)
         label_input_ilosc.setText("Ilość")
-        label_input_ilosc.move(330-os_x, 60+h)
+        label_input_ilosc.move((30/70)*self.width, (46/60)*self.height)
         self.input_ilosc = QLineEdit(self)
-        self.input_ilosc.move(310-os_x, 80+h)
-        self.input_ilosc.resize(100,40)
+        self.input_ilosc.move((28/70)*self.width, (48/60)*self.height)
+        self.input_ilosc.resize((10/70)*self.width, (4/60)*self.height)
 
 
         qbtn = QPushButton('Dodaj ', self)
         qbtn.clicked.connect(self.dodaj_sprzet)
-        qbtn.resize(100,40)
-        qbtn.move(540-os_x, 80+h)
+        qbtn.move((51/70)*self.width, (48/60)*self.height)
+        qbtn.resize((10/70)*self.width, (4/60)*self.height)
 
-        self.setGeometry(0, 0, 700, 600)
+        #self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Dodawanie sprzetu')
     def klikniety_magazyn(self,item):
         buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
@@ -215,8 +215,8 @@ class Sprzet(QWidget):
 class Wydaj(QWidget):
     def __init__(self,parent):
         super().__init__()
-        self.width = 800
-        self.height = 600
+        self.width = width_full
+        self.height = height_full
         self.initUI()
         self.polaczono=0
         self.dummy=0
@@ -224,50 +224,50 @@ class Wydaj(QWidget):
     def initUI(self):
         label_input_narzedzie = QLabel(self)
         label_input_narzedzie.setText("Narzedzie")
-        label_input_narzedzie.move(50,50)
+        label_input_narzedzie.move((5/70)*self.width, (5/60)*self.height)
         self.input_narzedzie = QLineEdit(self)
-        self.input_narzedzie.move(50, 80)
-        self.input_narzedzie.resize(100,40)
-
+        self.input_narzedzie.move((5/70)*self.width, (8/60)*self.height)
+        self.input_narzedzie.resize((10/70)*self.width, (4/60)*self.height)
 
         label_input_producent = QLabel(self)
         label_input_producent.setText("Producent")
-        label_input_producent.move(180, 50)
+        label_input_producent.move((18/70)*self.width, (5/60)*self.height)
         self.input_producent = QLineEdit(self)
-        self.input_producent.move(180, 80)
-        self.input_producent.resize(100,40)
+        self.input_producent.move((18/70)*self.width, (8/60)*self.height)
+        self.input_producent.resize((10/70)*self.width, (4/60)*self.height)
 
 
         label_input_ilosc = QLabel(self)
         label_input_ilosc.setText("Ilość")
-        label_input_ilosc.move(310, 50)
+        label_input_ilosc.move((31/70)*self.width, (5/60)*self.height)
         self.input_ilosc = QLineEdit(self)
-        self.input_ilosc.move(310, 80)
-        self.input_ilosc.resize(100,40)
+        self.input_ilosc.move((31/70)*self.width, (8/60)*self.height)
+        self.input_ilosc.resize((10/70)*self.width, (4/60)*self.height)
 
 
         label_input_osoba_imie = QLabel(self)
         label_input_osoba_imie.setText("Imie")
-        label_input_osoba_imie.move(440, 50)
+        label_input_osoba_imie.move((44/70)*self.width, (5/60)*self.height)
         self.input_imie = QLineEdit(self)
-        self.input_imie.move(440, 80)
-        self.input_imie.resize(100,40)
+        self.input_imie.move((44/70)*self.width, (8/60)*self.height)
+        self.input_imie.resize((10/70)*self.width, (4/60)*self.height)
+
 
 
         label_input_osoba_nazwisko = QLabel(self)
         label_input_osoba_nazwisko.setText("Nazwisko")
-        label_input_osoba_nazwisko.move(570, 50)
+        label_input_osoba_nazwisko.move((57/70)*self.width, (5/60)*self.height)
         self.input_nazwisko = QLineEdit(self)
-        self.input_nazwisko.move(570, 80)
-        self.input_nazwisko.resize(100,40)
+        self.input_nazwisko.move((57/70)*self.width, (8/60)*self.height)
+        self.input_nazwisko.resize((10/70)*self.width, (4/60)*self.height)
 
 
         qbtn = QPushButton('Wydaj ', self)
         qbtn.clicked.connect(self.wydaj_sprzet)
-        qbtn.resize(qbtn.sizeHint())
-        qbtn.move(140, 200)
+        qbtn.move((31/70)*self.width, (20/60)*self.height)
+        qbtn.resize((10/70)*self.width, (4/60)*self.height)
 
-        self.setGeometry(0, 0, 700, 600)
+        #self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Dodawanie sprzetu')
 
     def wydaj_sprzet(self):
@@ -290,8 +290,8 @@ class Wydaj(QWidget):
 class Ludzie(QWidget):
     def __init__(self):
         super().__init__()
-        self.width = 600
-        self.height = 600
+        self.width = width_full
+        self.height = height_full
         self.initUI()
         self.polaczono=0
         self.dummy=0
@@ -301,32 +301,33 @@ class Ludzie(QWidget):
         self.tableWidget = QTableWidget(self)
         self.tableWidget.setRowCount(1)
         self.tableWidget.setColumnCount(4)
-        self.tableWidget.move(300,50)
-        self.tableWidget.resize(350,300)
-        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent', 'ilosc', 'data'])
+        self.tableWidget.move((30/70)*self.width, (5/60)*self.height)
+        self.tableWidget.resize((35/70)*self.width, (30/60)*self.height)
+        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent', 'ilosc', 'data wydania'])
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.itemClicked.connect(self.kliknieta_tabela)
         self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
         self.tableWidget.show()
 
         label_input_imie = QLabel(self)
         label_input_imie.setText("Imie")
-        label_input_imie.move(50,50)
+        label_input_imie.move((5/70)*self.width, (5/60)*self.height)
         self.input_imie = QLineEdit(self)
-        self.input_imie.move(50, 80)
-        self.input_imie.resize(100,40)
+        self.input_imie.move((5/70)*self.width, (8/60)*self.height)
+        self.input_imie.resize((10/70)*self.width, (4/60)*self.height)
 
 
         label_input_nazwisko = QLabel(self)
         label_input_nazwisko.setText("Nazwisko")
-        label_input_nazwisko.move(180, 50)
+        label_input_nazwisko.move((18/70)*self.width, (5/60)*self.height)
         self.input_nazwisko = QLineEdit(self)
-        self.input_nazwisko.move(180, 80)
-        self.input_nazwisko.resize(100,40)
+        self.input_nazwisko.move((18/70)*self.width, (8/60)*self.height)
+        self.input_nazwisko.resize((10/70)*self.width, (4/60)*self.height)
 
         qbtn = QPushButton('Szukaj ', self)
         qbtn.clicked.connect(self.szukaj_pracownika)
-        qbtn.resize(qbtn.sizeHint())
-        qbtn.move(140, 200)
+        qbtn.move((14/70)*self.width, (20/60)*self.height)
+        qbtn.resize((10/70)*self.width, (4/60)*self.height)
 
         self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Sprawdzenie ludzi')
@@ -383,8 +384,8 @@ class Ludzie(QWidget):
 class Po_kategorii(QWidget):
     def __init__(self,parent):
         super().__init__()
-        self.width = 600
-        self.height = 600
+        self.width = width_full
+        self.height = height_full
         self.initUI()
         self.polaczono=0
         self.dummy=0
@@ -394,17 +395,18 @@ class Po_kategorii(QWidget):
 
 
         self.combo_wyszukiwanie = QComboBox(self)
-        self.combo_wyszukiwanie.resize(100,40)
-        self.combo_wyszukiwanie.move(100, 80)
+        self.combo_wyszukiwanie.resize((1/7)*self.width,(4/60)*self.height)
+        self.combo_wyszukiwanie.move((1/7)*self.width, (8/60)*self.height)
         self.combo_wyszukiwanie.currentIndexChanged.connect(self.zmiana_combo)
         self.combo_wyszukiwanie.show()
 
         self.tableWidget = QTableWidget(self)
         self.tableWidget.setRowCount(4)
         self.tableWidget.setColumnCount(4)
-        self.tableWidget.move(250,50)
-        self.tableWidget.resize(430,300)
+        self.tableWidget.resize((43/70)*self.width,(30/60)*self.height)
+        self.tableWidget.move((25/70)*self.width, (5/60)*self.height)
         self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent', 'wszystkie', 'dostepne'])
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch) 
         self.tableWidget.itemClicked.connect(self.clicked_table)
         self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
         self.tableWidget.show()
@@ -412,8 +414,6 @@ class Po_kategorii(QWidget):
         self.laduj_itemki()
 
 
-
-        self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Filtruj kategorie')
     def clicked_table(self,item):
         buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
@@ -476,15 +476,15 @@ class Po_kategorii(QWidget):
         self.combo_wyszukiwanie.clear()
         kats=dane['odpowiedz'][0]['kategorie']
         for i in range(0,len(kats)):
-            kat=kats[i] 
+            kat=kats[i]
             self.combo_wyszukiwanie.addItem(kat)
 
 
 class Glowne(QWidget):
     def __init__(self):
         super().__init__()
-        self.width = 800
-        self.height = 600
+        self.width = width_full
+        self.height = height_full
         self.initUI()
         self.polaczono=0
         self.dummy=0
@@ -493,54 +493,66 @@ class Glowne(QWidget):
 
 
     def initUI(self):
-
+        #700x600
 
         qbtn = QPushButton('Pokaż sprzęt', self)
         qbtn.clicked.connect(self.guzik_sprzet)
-        qbtn.resize(qbtn.sizeHint())
-        qbtn.move(100, 70)
+        qbtn.resize((1/7)*self.width,(5/60)*self.height)
+        qbtn.move(self.width*(5/70), (7/60)*self.height)
 
         guzik_ludzie = QPushButton('Szukaj pracowników ', self)
         guzik_ludzie.clicked.connect(self.guzik_patrz_ludzi)
-        guzik_ludzie.resize(guzik_ludzie.sizeHint())
-        guzik_ludzie.move(180, 70)
+        guzik_ludzie.resize((1/7)*self.width,(5/60)*self.height)
+        guzik_ludzie.move((20/70)*self.width, (7/60)*self.height)
 
         guzik_wydaj = QPushButton('Wydaj sprzęt ', self)
         guzik_wydaj.clicked.connect(self.guzik_kliknij_wydaj)
-        guzik_wydaj.resize(guzik_wydaj.sizeHint())
-        guzik_wydaj.move(300, 70)
+        guzik_wydaj.resize((1/7)*self.width,(5/60)*self.height)
+        guzik_wydaj.move((35/70)*self.width, (7/60)*self.height)
 
         guzik_po_kategorii = QPushButton('Pokaż kategorie', self)
         guzik_po_kategorii.clicked.connect(self.guzik_kliknij_po_kategorii)
-        guzik_po_kategorii.resize(guzik_po_kategorii.sizeHint())
-        guzik_po_kategorii.move(380, 70)
+        guzik_po_kategorii.resize((1/7)*self.width,(5/60)*self.height)
+        guzik_po_kategorii.move((50/70)*self.width, (7/60)*self.height)
 
 
 
-        self.setGeometry(0, 0, 700, 600)
+        #self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Glowne okno')
-        self.show()
+        #self.show()
     def guzik_sprzet(self):
+
         self.sprzet = Sprzet()
         self.sprzet.laduj()
-        self.sprzet.show()
+        self.sprzet.showMaximized()
     def guzik_kliknij_po_kategorii(self):
         self.po_kategorii = Po_kategorii(self)
-        self.po_kategorii.show()
+        self.po_kategorii.showMaximized()
         self.po_kategorii.dodaj_combo()
     def guzik_patrz_ludzi(self):
         self.ludzie = Ludzie()
-        self.ludzie.show()
+        self.ludzie.showMaximized()
     def guzik_kliknij_wydaj(self):
         self.wydaj = Wydaj(self)
-        self.wydaj.show()
+        self.wydaj.showMaximized()
+
 
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
+    sz=app.primaryScreen().size()
+    global width_full
+    width_full=sz.width()
+    global height_full
+    height_full=sz.height()
+
     ex = Glowne()
-    ex.show()
-    print(app.primaryScreen().size())
+    ex.showMaximized()
+
+
+
+
+
     sys.exit(app.exec_())
