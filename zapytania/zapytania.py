@@ -9,6 +9,9 @@ from PyQt5 import QtCore,QtGui
 import json
 global ex
 
+#dodawanie pracownika ,wyszukiwanie z tabelki z filtrowaniem
+
+
 #dodac tabelki
 url='https://zapkaappka.herokuapp.com/'
 #url='http://127.0.0.1:5000/'
