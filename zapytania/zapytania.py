@@ -5,7 +5,7 @@ from datetime import datetime
 import requests
 import sys
 from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox,QListWidgetItem,QTableWidget,QTableWidgetItem,QGridLayout,QHeaderView
-from PyQt5 import QtCore
+from PyQt5 import QtCore,QtGui
 import json
 global ex
 
@@ -46,10 +46,20 @@ class Sprzet(QWidget):
         label_lista_ogolem.move(int((32/70)*self.width), int((2/60)*self.height))
         self.tableWidget = QTableWidget(self)
 
+
+
+        wiersza = QtGui.QFont("Times", 15)
+        self.tableWidget.setFont(wiersza)
+
+
+
+        nazwa_kolumny = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+        self.tableWidget.horizontalHeader().setFont(nazwa_kolumny)
+
         self.tableWidget.setRowCount(1)
         self.tableWidget.setColumnCount(5)
-        self.tableWidget.move(int((25/70)*self.width), int((5/60)*self.height))
-        self.tableWidget.resize(int((43/70)*self.width),int((30/60)*self.height) )
+        self.tableWidget.move(int((10/70)*self.width), int((2/60)*self.height))
+        self.tableWidget.resize(int((50/70)*self.width),int((35/60)*self.height) )
         self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent','kategoria', 'wszystkie', 'dostepne'])
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.itemClicked.connect(self.klikniety_magazyn)
@@ -183,22 +193,27 @@ class Sprzet(QWidget):
 
                 item0 = QTableWidgetItem(str(narzedzie))
                 item0.setData(QtCore.Qt.UserRole, data)
+                item0.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.tableWidget.setItem(i,0,item0)
 
                 item1 = QTableWidgetItem(str(producent))
                 item1.setData(QtCore.Qt.UserRole, data)
+                item1.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.tableWidget.setItem(i,1,item1)
 
                 item2 = QTableWidgetItem(str(kategoria))
                 item2.setData(QtCore.Qt.UserRole, data)
+                item2.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.tableWidget.setItem(i,2,item2)
 
                 item3 = QTableWidgetItem(str(ilosc_wszystkich))
                 item3.setData(QtCore.Qt.UserRole, data)
+                item3.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.tableWidget.setItem(i,3,item3)
 
                 item4 = QTableWidgetItem(str(dostepne))
                 item4.setData(QtCore.Qt.UserRole, data)
+                item4.setTextAlignment(QtCore.Qt.AlignHCenter)
                 self.tableWidget.setItem(i,4,item4)
                 self.tableWidget.setSortingEnabled(True)
 
@@ -483,7 +498,7 @@ class Po_kategorii(QWidget):
 class Glowne(QWidget):
     def __init__(self):
         super().__init__()
-        self.width = width_full 
+        self.width = width_full
         self.height = height_full
         self.initUI()
         self.polaczono=0
