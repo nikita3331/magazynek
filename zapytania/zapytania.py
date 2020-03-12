@@ -12,8 +12,8 @@ global ex
 
 #dodawanie pracownika ,wyszukiwanie z tabelki z filtrowaniem
 
-#url='https://zapkaappka.herokuapp.com/'
-url='http://127.0.0.1:5000/'
+url='https://zapkaappka.herokuapp.com/'
+#url='http://127.0.0.1:5000/'
 
 
 class tabelka(QTableWidget):
