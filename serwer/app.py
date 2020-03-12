@@ -245,7 +245,18 @@ class Usun_pracownika_nowego(Resource):
         imie = json_data['imie']
         nazwisko = json_data['nazwisko']
         zawod = json_data['zawod']
-        db.pracownicy.delete_one({ "imie":imie ,"nazwisko":nazwisko,"zawod":zawod})
+        db.pracownicy.delete_one({ "imie":imie ,"nazwisko":nazwisko,"zawod":zawod}) #usuwamy z bazy prawocnikow
+        #sciagamy te ktore sa wydane
+        odpowiedz=db.wydanie.find( { "osoba_imie":imie ,"osoba_nazwisko":nazwisko } ) 
+        myresults = list(odpowiedz) #patrzymy ile ich jest w naszej bazie
+        moje_wartosci=[]
+        for i in myresults:
+
+            db.magazyn.update_one(  { "narzedzie":i['narzedzie'] ,"producent":i['producent']} ,{'$inc':{"ilosc_wydanych" :-int(i['ilosc'])}})
+            db.wydanie.delete_one({ "osoba_imie":imie ,"osoba_nazwisko":nazwisko}) #to na sam koniec
+
+#trzeba jeszcze zaktualizowac te ktore sa wydane
+
         return {'usunelismy':imie},201
 class wyswietl_pracownikow(Resource):
     def get(self):

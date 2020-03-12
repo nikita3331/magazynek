@@ -6,13 +6,14 @@ import requests
 import sys
 from PyQt5.QtWidgets import QWidget, QPushButton, QApplication,QLineEdit,QMessageBox,QLabel,QVBoxLayout,QListWidget,QComboBox,QListWidgetItem,QTableWidget,QTableWidgetItem,QGridLayout,QHeaderView
 from PyQt5 import QtCore,QtGui
+from PyQt5.QtGui import QPalette
 import json
 global ex
 
 #dodawanie pracownika ,wyszukiwanie z tabelki z filtrowaniem
 
-url='https://zapkaappka.herokuapp.com/'
-#url='http://127.0.0.1:5000/'
+#url='https://zapkaappka.herokuapp.com/'
+url='http://127.0.0.1:5000/'
 
 
 class tabelka(QTableWidget):
@@ -700,6 +701,9 @@ class Glowne(QWidget):
         qbtn.resize(int((1/8)*self.width),int((5/60)*self.height))
         qbtn.move(int(self.width*(2/70)),int((7/60)*self.height) )
 
+
+
+
         guzik_ludzie = QPushButton('Szukaj pracowników ', self)
         guzik_ludzie.clicked.connect(self.guzik_patrz_ludzi)
         guzik_ludzie.resize(int((1/8)*self.width),int((5/60)*self.height))
@@ -729,20 +733,30 @@ class Glowne(QWidget):
 
         self.sprzet = Sprzet()
         self.sprzet.laduj()
+        guzik_styl = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+        self.sprzet.setFont(guzik_styl)
         self.sprzet.showMaximized()
     def guzik_kliknij_po_kategorii(self):
         self.po_kategorii = Po_kategorii(self)
+        guzik_styl = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+        self.po_kategorii.setFont(guzik_styl)
         self.po_kategorii.showMaximized()
         self.po_kategorii.dodaj_combo()
     def guzik_dodaj_pracownik(self):
         self.pracownik = Dodaj_pracownika(self)
+        guzik_styl = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+        self.pracownik.setFont(guzik_styl)
         self.pracownik.showMaximized()
     def guzik_patrz_ludzi(self):
         self.ludzie = Ludzie()
+        guzik_styl = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+        self.ludzie.setFont(guzik_styl)
         self.ludzie.showMaximized()
         self.ludzie.laduj_pracownikow()
     def guzik_kliknij_wydaj(self):
         self.wydaj = Wydaj(self)
+        guzik_styl = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+        self.wydaj.setFont(guzik_styl)
         self.wydaj.showMaximized()
         self.wydaj.laduj_do_tabelki()
 
@@ -752,6 +766,9 @@ class Glowne(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     app.setStyle('Fusion')
+    palette = QPalette()
+    palette.setColor(QPalette.Button, QtCore.Qt.green)
+    app.setPalette(palette)
     sz=app.primaryScreen().size()
     global width_full
     width_full=sz.width()
@@ -759,7 +776,10 @@ if __name__ == '__main__':
     height_full=sz.height()
 
     ex = Glowne()
+    guzik_styl = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+    ex.setFont(guzik_styl)
     ex.showMaximized()
+
 
 
 
