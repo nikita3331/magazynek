@@ -228,6 +228,34 @@ class kategorie(Resource):
         for i in myresults:
             moje_wartosci.append({'kategorie':i['kategorie']})
         return {'odpowiedz':moje_wartosci},201
+class Dodaj_pracownika_nowego(Resource):
+    def post(self):
+        json_data = request.get_json()
+        imie = json_data['imie']
+        nazwisko = json_data['nazwisko']
+        zawod = json_data['zawod']
+        odpowiedz=db.pracownicy.find( { "imie":imie ,"nazwisko":nazwisko,"zawod":zawod} )
+        myresults = list(odpowiedz)# patrzymy czy taki pracownik juz jest
+        if len(myresults)==0: #dodajemy jesli nie ma
+            db.pracownicy.insert_one({"imie": imie, "nazwisko" :nazwisko,"zawod":zawod})
+        return {'dodalismy':'pracownika'},201
+class Usun_pracownika_nowego(Resource):
+    def post(self):
+        json_data = request.get_json()
+        imie = json_data['imie']
+        nazwisko = json_data['nazwisko']
+        zawod = json_data['zawod']
+        db.pracownicy.delete_one({ "imie":imie ,"nazwisko":nazwisko,"zawod":zawod})
+        return {'usunelismy':imie},201
+class wyswietl_pracownikow(Resource):
+    def get(self):
+        odpowiedz=db.pracownicy.find()
+        myresults = list(odpowiedz) #patrzymy ile ich jest w naszej bazie
+        moje_wartosci=[]
+        for i in myresults:
+            moje_wartosci.append({'imie':i['imie'],'nazwisko':i['nazwisko'],'zawod':i['zawod']})
+        return {'odpowiedz':moje_wartosci},201
+
 
 
 
@@ -242,6 +270,12 @@ api.add_resource(Wydane_osobie,'/wydane_osobie/')
 api.add_resource(zobacz_wszystkie,'/zobacz_wszystkie/')
 api.add_resource(kategorie,'/kategorie/')
 api.add_resource(zobacz_po_kategorii,'/zobacz_po_kategorii/')
+api.add_resource(Dodaj_pracownika_nowego,'/dodaj_pracownika_nowego/')
+api.add_resource(Usun_pracownika_nowego,'/usun_pracownika_nowego/')
+api.add_resource(wyswietl_pracownikow,'/wyswietl_pracownikow/')
+
+
+
 
 
 
