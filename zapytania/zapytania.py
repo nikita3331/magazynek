@@ -10,7 +10,7 @@ from PyQt5.QtGui import QPalette
 import json
 global ex
 
-#dodawanie pracownika ,wyszukiwanie z tabelki z filtrowaniem
+#generujemy obiegowke ,mail idzie do mamy z tabelki wybieramy pracownika i sprawdzamy jeszcze czy nic na nim nie ma
 
 url='https://zapkaappka.herokuapp.com/'
 #url='http://127.0.0.1:5000/'
