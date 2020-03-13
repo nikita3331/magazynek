@@ -257,7 +257,7 @@ class Usun_pracownika_nowego(Resource):
             db.magazyn.update_one(  { "narzedzie":i['narzedzie'] ,"producent":i['producent']} ,{'$inc':{"ilosc_wydanych" :-int(i['ilosc'])}})
             db.wydanie.delete_one({ "osoba_imie":imie ,"osoba_nazwisko":nazwisko}) #to na sam koniec
 
-#trzeba jeszcze zaktualizowac te ktore sa wydane 
+#trzeba jeszcze zaktualizowac te ktore sa wydane
 
         return {'usunelismy':imie},201
 class wyswietl_pracownikow(Resource):
@@ -289,6 +289,8 @@ class Obiegowka(Resource):
                 return {'Wygenerowalismy dla ':imie},201
             except Exception as e:
                 return {'Błąd ':e.message},201
+        else:
+            return {'Osoba  ':'ma na sobie przedmioty'},201
 
 
 

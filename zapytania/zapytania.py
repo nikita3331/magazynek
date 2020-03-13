@@ -721,7 +721,7 @@ class Obiegowka(QWidget):
             payload = {"imie": imie, "nazwisko": nazwisko,"zawod":zawod,"email":email}
             r = requests.post(url+'obiegowka/',json=payload)
             msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information) 
+            msg.setIcon(QMessageBox.Information)
             msg.setText(r.text)
             retval = msg.exec_()
     def dodaj_do_tabeli(self,dane):
@@ -806,7 +806,7 @@ class Glowne(QWidget):
         guzik_dodaj_pracownika.move(int((53/70)*self.width), int((7/60)*self.height))
 
         guzik_obiegowka = QPushButton('Obiegówka', self)
-        guzik_obiegowka.clicked.connect(self.guzik_dodaj_pracownik)
+        guzik_obiegowka.clicked.connect(self.daj_obiegowke)
         guzik_obiegowka.resize(int((1/8)*self.width),int((5/60)*self.height))
         guzik_obiegowka.move(int((27/70)*self.width), int((15/60)*self.height))
 
@@ -851,7 +851,7 @@ class Glowne(QWidget):
         guzik_styl = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
         self.obiegowka.setFont(guzik_styl)
         self.obiegowka.showMaximized()
-        self.obiegowka.laduj_do_tabelki()
+        self.obiegowka.laduj_itemki()
 
 
 
