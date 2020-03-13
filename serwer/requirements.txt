@@ -1,6 +1,7 @@
 requests
 pymongo
 flask
+sendgrid
 flask_restful
 uwsgi
 dnspython

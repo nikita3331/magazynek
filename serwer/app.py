@@ -4,6 +4,8 @@ from pymongo import MongoClient
 from random import randint
 from pprint import pprint
 from datetime import datetime
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 client = MongoClient("mongodb+srv://nikita3331:babcia2@cluster0-lgk9o.mongodb.net/test?retryWrites=true&w=majority" ,connectTimeoutMS=30000, socketTimeoutMS=None, connect=False, maxPoolsize=1)
 db=client.magazyn
 
@@ -247,7 +249,7 @@ class Usun_pracownika_nowego(Resource):
         zawod = json_data['zawod']
         db.pracownicy.delete_one({ "imie":imie ,"nazwisko":nazwisko,"zawod":zawod}) #usuwamy z bazy prawocnikow
         #sciagamy te ktore sa wydane
-        odpowiedz=db.wydanie.find( { "osoba_imie":imie ,"osoba_nazwisko":nazwisko } ) 
+        odpowiedz=db.wydanie.find( { "osoba_imie":imie ,"osoba_nazwisko":nazwisko } )
         myresults = list(odpowiedz) #patrzymy ile ich jest w naszej bazie
         moje_wartosci=[]
         for i in myresults:
@@ -255,7 +257,7 @@ class Usun_pracownika_nowego(Resource):
             db.magazyn.update_one(  { "narzedzie":i['narzedzie'] ,"producent":i['producent']} ,{'$inc':{"ilosc_wydanych" :-int(i['ilosc'])}})
             db.wydanie.delete_one({ "osoba_imie":imie ,"osoba_nazwisko":nazwisko}) #to na sam koniec
 
-#trzeba jeszcze zaktualizowac te ktore sa wydane
+#trzeba jeszcze zaktualizowac te ktore sa wydane 
 
         return {'usunelismy':imie},201
 class wyswietl_pracownikow(Resource):
@@ -266,6 +268,31 @@ class wyswietl_pracownikow(Resource):
         for i in myresults:
             moje_wartosci.append({'imie':i['imie'],'nazwisko':i['nazwisko'],'zawod':i['zawod']})
         return {'odpowiedz':moje_wartosci},201
+class Obiegowka(Resource):
+    def post(self):
+        json_data = request.get_json()
+        imie = json_data['imie']
+        nazwisko = json_data['nazwisko']
+        zawod = json_data['zawod']
+        email=json_data['email']
+        SENDGRID_API_KEY='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'
+        odpowiedz=db.wydanie.find( { "osoba_imie":imie ,"osoba_nazwisko":nazwisko } )
+        myresults = list(odpowiedz) #patrzymy ile ich jest w naszej bazie
+        dzien_tyg=datetime.now()
+        if len(myresults)==0:
+            tytul='Obiegówka '+str(imie)+' '+str(nazwisko)
+            content=str(imie)+' '+str(nazwisko)+' zdał wszystkie rzeczy i został odprawiony w dniu '+str(dzien_tyg.day)+'-'+str(dzien_tyg.month)+'-'+str(dzien_tyg.year)
+            message = Mail(from_email='magazyn.logos@example.com',to_emails=str(email),subject=tytul,html_content=content)
+            try:
+                sg = SendGridAPIClient(SENDGRID_API_KEY)
+                response = sg.send(message)
+                return {'Wygenerowalismy dla ':imie},201
+            except Exception as e:
+                return {'Błąd ':e.message},201
+
+
+
+
 
 
 
@@ -284,6 +311,8 @@ api.add_resource(zobacz_po_kategorii,'/zobacz_po_kategorii/')
 api.add_resource(Dodaj_pracownika_nowego,'/dodaj_pracownika_nowego/')
 api.add_resource(Usun_pracownika_nowego,'/usun_pracownika_nowego/')
 api.add_resource(wyswietl_pracownikow,'/wyswietl_pracownikow/')
+api.add_resource(Obiegowka,'/obiegowka/')
+
 
 
 

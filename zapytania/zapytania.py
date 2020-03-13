@@ -676,6 +676,87 @@ class Dodaj_pracownika(QWidget):
         r = requests.get(url+'wyswietl_pracownikow/')
         dane=r.json()
         self.dodaj_do_tabeli(dane)
+class Obiegowka(QWidget):
+    def __init__(self,parent):
+        super().__init__()
+        self.width = width_full
+        self.height = height_full
+        self.initUI()
+        self.polaczono=0
+        self.dummy=0
+
+
+    def initUI(self):
+
+
+
+
+        self.tableWidget = QTableWidget(self)
+        self.tableWidget.setRowCount(4)
+        self.tableWidget.setColumnCount(3)
+        wiersza = QtGui.QFont("Times", 15)
+        self.tableWidget.setFont(wiersza)
+        nazwa_kolumny = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+        self.tableWidget.horizontalHeader().setFont(nazwa_kolumny)
+        self.tableWidget.resize(int((30/70)*self.width),int((30/60)*self.height))
+        self.tableWidget.move(int((38/70)*self.width), int((5/60)*self.height))
+        self.tableWidget.setHorizontalHeaderLabels(['imie', 'nazwisko', 'zawod'])
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableWidget.itemClicked.connect(self.generuj)
+        self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
+        self.tableWidget.show()
+        self.laduj_itemki()
+
+
+        self.setWindowTitle('Generowanie obiegówki')
+    def generuj(self,item):
+        buttonReply = QMessageBox.question(self, 'Generowanie obiegówki', "Czy wygenerować?",QMessageBox.Yes | QMessageBox.No)
+        dane=item.data(QtCore.Qt.UserRole)
+        if buttonReply == QMessageBox.Yes:
+         #tu usuwamy
+            imie=dane['imie']
+            nazwisko=dane['nazwisko']
+            zawod=dane['zawod']
+            email='mykyta.brazhynskyy@gmail.com'
+            payload = {"imie": imie, "nazwisko": nazwisko,"zawod":zawod,"email":email}
+            r = requests.post(url+'obiegowka/',json=payload)
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information) 
+            msg.setText(r.text)
+            retval = msg.exec_()
+    def dodaj_do_tabeli(self,dane):
+
+        #dodac sortowanie
+        self.tableWidget.clear()
+        self.tableWidget.setHorizontalHeaderLabels(['imie', 'nazwisko', 'zawod'])
+        self.tableWidget.setRowCount(len(dane['odpowiedz']))
+        lista_moja=list(dane['odpowiedz'])
+        for i in range(0,len(dane['odpowiedz'])):
+            imie=str(lista_moja[i]['imie'])
+            nazwisko=str(lista_moja[i]['nazwisko'])
+            zawod=str(lista_moja[i]['zawod'])
+            data = ({'imie':imie,'nazwisko':nazwisko,'zawod':zawod})
+
+            self.tableWidget.setSortingEnabled(False)
+            item0 = QTableWidgetItem(str(imie))
+            item0.setData(QtCore.Qt.UserRole, data)
+            item0.setTextAlignment(QtCore.Qt.AlignHCenter)
+            self.tableWidget.setItem(i,0,item0)
+
+            item1 = QTableWidgetItem(str(nazwisko))
+            item1.setData(QtCore.Qt.UserRole, data)
+            item1.setTextAlignment(QtCore.Qt.AlignHCenter)
+            self.tableWidget.setItem(i,1,item1)
+
+            item2 = QTableWidgetItem(str(zawod))
+            item2.setData(QtCore.Qt.UserRole, data)
+            item2.setTextAlignment(QtCore.Qt.AlignHCenter)
+            self.tableWidget.setItem(i,2,item2)
+
+    def laduj_itemki(self):
+        r = requests.get(url+'wyswietl_pracownikow/')
+        dane=r.json()
+        self.dodaj_do_tabeli(dane)
 
 
 
@@ -724,6 +805,12 @@ class Glowne(QWidget):
         guzik_dodaj_pracownika.resize(int((1/8)*self.width),int((5/60)*self.height))
         guzik_dodaj_pracownika.move(int((53/70)*self.width), int((7/60)*self.height))
 
+        guzik_obiegowka = QPushButton('Obiegówka', self)
+        guzik_obiegowka.clicked.connect(self.guzik_dodaj_pracownik)
+        guzik_obiegowka.resize(int((1/8)*self.width),int((5/60)*self.height))
+        guzik_obiegowka.move(int((27/70)*self.width), int((15/60)*self.height))
+
+
 
 
         #self.setGeometry(0, 0, 700, 600)
@@ -759,6 +846,12 @@ class Glowne(QWidget):
         self.wydaj.setFont(guzik_styl)
         self.wydaj.showMaximized()
         self.wydaj.laduj_do_tabelki()
+    def daj_obiegowke(self):
+        self.obiegowka = Obiegowka(self)
+        guzik_styl = QtGui.QFont("Times", 20, QtGui.QFont.Bold)
+        self.obiegowka.setFont(guzik_styl)
+        self.obiegowka.showMaximized()
+        self.obiegowka.laduj_do_tabelki()
 
 
 
