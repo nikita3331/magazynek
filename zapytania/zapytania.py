@@ -23,7 +23,7 @@ class tabelka(QTableWidget):
         self.tableWidget.setColumnCount(5)
         self.tableWidget.move(250,50)
         self.tableWidget.resize(430,300)
-        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent','kategoria', 'wszystkie', 'dostepne'])
+        self.tableWidget.setHorizontalHeaderLabels(['narzędzie', 'producent','kategoria', 'wszystkie', 'dostępne'])
         self.tableWidget.itemClicked.connect(self.klikniety_magazyn)
         self.tableWidget.show()
 
@@ -57,7 +57,7 @@ class Sprzet(QWidget):
         self.tableWidget.setColumnCount(5)
         self.tableWidget.move(int((10/70)*self.width), int((2/60)*self.height))
         self.tableWidget.resize(int((50/70)*self.width),int((35/60)*self.height) )
-        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent','kategoria', 'wszystkie', 'dostepne'])
+        self.tableWidget.setHorizontalHeaderLabels(['narzędzie', 'producent','kategoria', 'wszystkie', 'dostępne'])
         self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidget.itemClicked.connect(self.klikniety_magazyn)
         self.tableWidget.sortItems(0, QtCore.Qt.AscendingOrder)
@@ -75,7 +75,7 @@ class Sprzet(QWidget):
         self.dodaj_combo()
 
         label_input_narzedzie = QLabel(self)
-        label_input_narzedzie.setText("Narzedzie")
+        label_input_narzedzie.setText("Narzędzie")
         label_input_narzedzie.move(int((4/70)*self.width), int((46/60)*self.height))
         self.input_narzedzie = QLineEdit(self)
         self.input_narzedzie.move(int((2/70)*self.width), int((48/60)*self.height))
@@ -120,7 +120,7 @@ class Sprzet(QWidget):
         #self.setGeometry(0, 0, 700, 600)
         self.setWindowTitle('Dodawanie sprzetu')
     def klikniety_magazyn(self,item):
-        buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+        buttonReply = QMessageBox.question(self, 'Usuwanie przedmiotu', "Czy usunąć?",QMessageBox.Yes | QMessageBox.No)
         dane=item.data(QtCore.Qt.UserRole)
         if buttonReply == QMessageBox.Yes:
     #tu usuwamy
@@ -169,7 +169,7 @@ class Sprzet(QWidget):
 
     def zaladuj_magazyn(self,dane):  #to bedzie lokalnie filtrowane
         self.tableWidget.clear()
-        self.tableWidget.setHorizontalHeaderLabels(['narzedzie', 'producent','kategoria', 'wszystkie', 'dostepne'])
+        self.tableWidget.setHorizontalHeaderLabels(['narzędzie', 'producent','kategoria', 'wszystkie', 'dostępne'])
         self.tableWidget.setRowCount(len(dane['odpowiedz']))
 
 
@@ -272,25 +272,7 @@ class Wydaj(QWidget):
         self.input_ilosc.move(int((31/70)*self.width),int((8/60)*self.height) )
         self.input_ilosc.resize(int((10/70)*self.width),int((4/60)*self.height) )
 
-
-        # label_input_osoba_imie = QLabel(self)
-        # label_input_osoba_imie.setText("Imie")
-        # label_input_osoba_imie.move(int((44/70)*self.width),int((5/60)*self.height) )
-        # self.input_imie = QLineEdit(self)
-        # self.input_imie.move(int((44/70)*self.width),int((8/60)*self.height) )
-        # self.input_imie.resize(int((10/70)*self.width), int((4/60)*self.height))
-        #
-        #
-        #
-        # label_input_osoba_nazwisko = QLabel(self)
-        # label_input_osoba_nazwisko.setText("Nazwisko")
-        # label_input_osoba_nazwisko.move(int((57/70)*self.width), int((5/60)*self.height))
-        # self.input_nazwisko = QLineEdit(self)
-        # self.input_nazwisko.move(int((57/70)*self.width),int((8/60)*self.height) )
-        # self.input_nazwisko.resize(int((10/70)*self.width), int((4/60)*self.height))
-
-
-        qbtn = QPushButton('Wydaj ', self)
+        qbtn = QPushButton('Wydaj', self)
         qbtn.clicked.connect(self.wydaj_sprzet)
         qbtn.move(int((31/70)*self.width), int((20/60)*self.height))
         qbtn.resize(int((10/70)*self.width), int((4/60)*self.height))
@@ -619,7 +601,7 @@ class Dodaj_pracownika(QWidget):
 
         self.setWindowTitle('Dodaj pracownika')
     def clicked_table(self,item):
-        buttonReply = QMessageBox.question(self, 'Usuwanie pracownika', "Czy usunac?",QMessageBox.Yes | QMessageBox.No)
+        buttonReply = QMessageBox.question(self, 'Usuwanie pracownika', "Czy usunąć?",QMessageBox.Yes | QMessageBox.No)
         dane=item.data(QtCore.Qt.UserRole)
         if buttonReply == QMessageBox.Yes:
          #tu usuwamy
@@ -779,7 +761,7 @@ class Glowne(QWidget):
 
         qbtn = QPushButton('Pokaż sprzęt', self)
         qbtn.clicked.connect(self.guzik_sprzet)
-        qbtn.resize(int((1/8)*self.width),int((5/60)*self.height))
+        #qbtn.resize(int((1/8)*self.width),int((5/60)*self.height))
         qbtn.move(int(self.width*(2/70)),int((7/60)*self.height) )
 
 
@@ -787,34 +769,34 @@ class Glowne(QWidget):
 
         guzik_ludzie = QPushButton('Szukaj pracowników ', self)
         guzik_ludzie.clicked.connect(self.guzik_patrz_ludzi)
-        guzik_ludzie.resize(int((1/8)*self.width),int((5/60)*self.height))
+        #guzik_ludzie.resize(int((1/8)*self.width),int((5/60)*self.height))
         guzik_ludzie.move(int((14/70)*self.width),int( (7/60)*self.height))
 
         guzik_wydaj = QPushButton('Wydaj sprzęt ', self)
         guzik_wydaj.clicked.connect(self.guzik_kliknij_wydaj)
-        guzik_wydaj.resize(int((1/8)*self.width),int((5/60)*self.height))
+        #guzik_wydaj.resize(int((1/8)*self.width),int((5/60)*self.height))
         guzik_wydaj.move(int((27/70)*self.width), int((7/60)*self.height))
 
         guzik_po_kategorii = QPushButton('Pokaż kategorie', self)
         guzik_po_kategorii.clicked.connect(self.guzik_kliknij_po_kategorii)
-        guzik_po_kategorii.resize(int((1/8)*self.width),int((5/60)*self.height))
+        #guzik_po_kategorii.resize(int((1/8)*self.width),int((5/60)*self.height))
         guzik_po_kategorii.move(int((40/70)*self.width), int((7/60)*self.height))
 
-        guzik_dodaj_pracownika = QPushButton('Pracownicy', self)
+        guzik_dodaj_pracownika = QPushButton('Dodaj pracowników', self)
         guzik_dodaj_pracownika.clicked.connect(self.guzik_dodaj_pracownik)
-        guzik_dodaj_pracownika.resize(int((1/8)*self.width),int((5/60)*self.height))
+        #guzik_dodaj_pracownika.resize(int((1/8)*self.width),int((5/60)*self.height))
         guzik_dodaj_pracownika.move(int((53/70)*self.width), int((7/60)*self.height))
 
-        guzik_obiegowka = QPushButton('Obiegówka', self)
+        guzik_obiegowka = QPushButton('Obiegówka   ', self)
         guzik_obiegowka.clicked.connect(self.daj_obiegowke)
-        guzik_obiegowka.resize(int((1/8)*self.width),int((5/60)*self.height))
+        #guzik_obiegowka.resize(int((1/8)*self.width),int((5/60)*self.height))
         guzik_obiegowka.move(int((27/70)*self.width), int((15/60)*self.height))
 
 
 
 
         #self.setGeometry(0, 0, 700, 600)
-        self.setWindowTitle('Glowne okno')
+        self.setWindowTitle('Główne okno')
         #self.show()
     def guzik_sprzet(self):
 
