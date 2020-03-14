@@ -282,7 +282,7 @@ class Obiegowka(Resource):
         if len(myresults)==0:
             tytul='Obiegówka '+str(imie)+' '+str(nazwisko)
             content=str(imie)+' '+str(nazwisko)+' zdał wszystkie rzeczy i został odprawiony w dniu '+str(dzien_tyg.day)+'-'+str(dzien_tyg.month)+'-'+str(dzien_tyg.year)
-            message = Mail(from_email='magazyn.logos@example.com',to_emails=str(email),subject=tytul,html_content=content)
+            message = Mail(from_email='magazyn.logos@logos.pl',to_emails=str(email),subject=tytul,html_content=content)
             try:
                 sg = SendGridAPIClient(SENDGRID_API_KEY)
                 response = sg.send(message)
