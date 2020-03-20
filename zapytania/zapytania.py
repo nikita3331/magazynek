@@ -699,7 +699,7 @@ class Obiegowka(QWidget):
             imie=dane['imie']
             nazwisko=dane['nazwisko']
             zawod=dane['zawod']
-            email='mykyta.brazhynskyy@gmail.com'
+            email='olena-vasylevska@wp.pl'
             payload = {"imie": imie, "nazwisko": nazwisko,"zawod":zawod,"email":email}
             r = requests.post(url+'obiegowka/',json=payload)
             msg = QMessageBox()
